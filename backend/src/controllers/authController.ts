@@ -147,3 +147,31 @@ export const resetPassword = async (req: Request, res: Response) => {
         res.status(400).json({ error: error.message });
     }
 };
+
+// 7. UPDATE PROFILE
+export const updateUser = async (req: Request, res: Response) => {
+    try {
+        const id = req.params.id as string;
+        
+        
+        const { fullname, email, password } = req.body;
+
+        if (!fullname && !email && !password) {
+            return res.status(400).json({ error: "Please provide fields to update." });
+        }
+
+        const updatedUser = await authService.updateProfile(id, { fullname, email, password });
+
+        res.status(200).json({ 
+            message: "User profile updated successfully", 
+            user: updatedUser 
+        });
+
+    } catch (error) {
+        if (error instanceof Error) {
+            res.status(400).json({ message: "Error in updating User:", error: error.message });
+        } else {
+            res.status(500).json({ message: "Server error", error})
+        }
+    }
+};

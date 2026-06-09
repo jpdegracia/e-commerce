@@ -6,12 +6,15 @@ import IUser from "../interface/IUser";
 const UserSchema = new Schema<IUser>({
     fullname: { 
         type: String,
-        required: true
+        required: [true, "Full Name is Required"],
+        trim: true,
     },
     email: { 
         type: String,
-        required: true,
+        required: [true, "Email is Required"],
         unique: true,
+        trim: true,
+        lowercase: true,
         validate: {
             validator: function(emailValue: string) {
                 return emailValue.includes("@") && emailValue.includes(".");
@@ -21,7 +24,7 @@ const UserSchema = new Schema<IUser>({
     },
     password: {
         type: String,
-        required: true,
+        required: [true, "Password is Required"],
         validate: {
             validator: function(passwordValue: string) {
                 const passwordLength = passwordValue.length > 8;

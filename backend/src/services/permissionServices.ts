@@ -1,5 +1,6 @@
 import { PermissionModel } from "../models/permissionModel";
 import IPermission from "../interface/IPermission";
+import { RoleModel } from "../models/roleModel";
 
 class PermissionService {
 
@@ -11,6 +12,22 @@ class PermissionService {
         }
         const newPermission = new PermissionModel(permissionData)
         await newPermission.save();
+        
+        const adminRole = await RoleModel.findOne({ 
+            rolename: { $regex: /^admin$/i } 
+        });
+
+        if (adminRole) {
+            // Push the new permission ObjectId into the admin's existing permissions array
+            adminRole.permissions.push(newPermission._id as any);
+            await adminRole.save();
+            
+            console.log(`Successfully assigned '${newPermission.permissionName}' to Admin role.`);
+        } else {
+            console.warn("Automation Warning: 'Admin' role document was not found in the database. Skipping auto-assignment.");
+        }
+
+
         return newPermission;
     }
 

@@ -50,6 +50,9 @@ class UserService {
     public async updateUser(id: string, updateData: Partial<IUser>) {
 
         const user = await UserModel.findByIdAndUpdate(id, updateData, {new: true, runValidators: true}).select("-password").populate("role");
+        if (!user) {
+            throw new Error("User not found or update failed.")
+        }
         return user;
     }
 

@@ -63,6 +63,27 @@ class AuthService {
         return { message: "Logged out successfully. Clear your client-side token." };
     }
 
+    //update-profile
+    public async updateProfile(id: string, updateData: Partial<IUser>) {
+    const dataToUpdate = { ...updateData };
+
+    if (dataToUpdate.password) {
+        const salt = await bcrypt.genSalt(10);
+        dataToUpdate.password = await bcrypt.hash(dataToUpdate.password, salt);
+    }
+
+    // Update the database with the clean data
+    const user = await UserModel.findByIdAndUpdate(id, dataToUpdate, { new: true, runValidators: true })
+        .select("-password")
+        .populate("role");
+
+    if (!user) {
+        throw new Error("User not found or update failed.");
+    }
+
+    return user;
+}
+
     //verify email
     public async verifyEmail(token: string) {
         const user = await UserModel.findOne({ verificationToken: token });

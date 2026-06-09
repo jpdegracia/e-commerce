@@ -5,6 +5,7 @@ import userRoutes from "./routes/userRoutes"
 import roleRoutes from "./routes/roleRoutes"
 import permissionRoutes from "./routes/permissionRoutes"
 import authRoutes from "./routes/authRoutes"
+import categoryRoutes from "./routes/categoryRoutes";
 
 // 1. LOAD ENVIRONMENT VARIABLES
 dotenv.config();
@@ -24,6 +25,7 @@ app.use("/users", userRoutes);
 app.use("/roles", roleRoutes);
 app.use("/permissions", permissionRoutes);
 app.use("/auth", authRoutes);
+app.use("/categories", categoryRoutes);
 
 // A quick health-check route just to test if the server is alive via browser
 app.get("/", (req, res) => {

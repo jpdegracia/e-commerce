@@ -6,11 +6,13 @@ import IRole from "../interface/IRole";
 const RoleSchema = new Schema<IRole>({
     rolename: {
         type: String,
-        required: true,
-        unique: true
+        required: [true, "Role is Required"],
+        unique: true,
+        trim: true
     },
     description: {
         type: String,
+        trim: true,
     },
     permissions: [{
         type: mongoose.Types.ObjectId,
