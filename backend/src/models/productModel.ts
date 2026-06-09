@@ -3,7 +3,7 @@ import IProduct from "../interface/IProduct"
 
 
 const ProductSchema = new Schema<IProduct>({
-    productName: {
+    productname: {
         type: String,
         required: [true, "Product name is Required"],
         unique: true,

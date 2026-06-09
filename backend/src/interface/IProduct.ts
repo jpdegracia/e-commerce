@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 interface IProduct {
-    productName: string,
+    productname: string,
     description: string,
     price: number,
     stock: number,
