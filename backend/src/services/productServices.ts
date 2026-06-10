@@ -15,22 +15,35 @@ class ProductService {
     }
 
     public async getAllProducts() {
-        const products = await ProductModel.find();
+        const products = await ProductModel.find()
+        .populate("category")
         return products;
     }
 
     public async getProductByID(id: string) {
-        const product = await ProductModel.findById(id);
+        const product = await ProductModel.findById(id)
+        .populate("category")
+        if (!product) {
+            throw new Error("Product with this ID not found")
+        }
         return product;
     }
 
     public async updateProduct(id: string, updateData: Partial<IProduct>) {
         const product = await ProductModel.findByIdAndUpdate(id, updateData, {new: true, runValidators: true});
+        if (!product) {
+            throw new Error("Product not found or update failed.")
+        }
         return product;
     }
 
     public async deleteProduct(id: string) {
         const product = await ProductModel.findByIdAndDelete(id)
-        return product;
+        if (!product) {
+            throw new Error("Product not found or already deleted.");
+        }
+        return { message: "Product deleted successfully." };
     }
 }
+
+export const productServices = new ProductService();

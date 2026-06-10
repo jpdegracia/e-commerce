@@ -41,7 +41,7 @@ export const getCategoryByID = async (req: Request, res: Response) => {
         res.status(200).json({ message: "Fetching Category by ID", details: categoryID})
     } catch (error) {
         if (error instanceof Error) {
-            res.status(400).json({ message: "Fetching Category by ID", error: error.message })
+            res.status(400).json({ message: "Error Fetching Category by ID", error: error.message })
         } else {
             res.status(500).json({ message: "Server Error", error })
         }
