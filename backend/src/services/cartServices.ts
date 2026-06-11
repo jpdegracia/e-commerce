@@ -68,4 +68,67 @@ class CartService {
         await cart.save();
         return await cart.populate("items.product");
     }
+
+    public async getCart(userId: string) {
+        const cart = await CartModel.findOne({ user: userId }).populate("items.product")
+
+        // If they don't have a cart document, return an empty layout structure so the frontend doesn't crash
+        if (!cart) {
+            return { user: userId, items:[], totalPrice: 0 }
+        }
+    }
+
+    public async removeItemFromCart(userId: string, productId: string) {
+        const cart = await CartModel.findOne({ user: userId })
+        if (!cart) {
+            throw new Error("Cart not found")
+        }
+
+        //mongoDb filtering array syntax to pull the items out cleanly
+        cart.items = cart.items.filter(item => item.product.toString() !== productId) as any;
+
+        //recalculating price
+        cart.totalPrice = await this.calculateTotalPrice(cart.items as any);
+        await cart.save();
+        return cart.populate("items.product")
+    }
+
+    public async updateItemQuantity(userId: string, productId: string, quantity: number) {
+        
+        //checking for quantity and removal of item
+        if (quantity <= 0) {
+            return await this.removeItemFromCart(userId, productId)
+        }
+
+        //checking of users cart and product inside the cart
+        const product = await ProductModel.findById(productId)
+        if (!product) {
+            throw new Error("Product not found.")
+        }
+        if (product.stock < quantity) {
+            throw new Error(`Only ${product.stock} units are available in stocks.`);
+        }
+
+        const cart = await CartModel.findOne({ user: userId })
+        if (!cart) {
+            throw new Error("Cart not found.");
+        }
+        const itemIndex = cart.items.findIndex(item => item.product.toString() !== productId);
+        if (itemIndex === -1) {
+            throw new Error("Product is not in your cart")
+        }
+        
+        //set exact amount chosen by user
+        cart.items[itemIndex].quantity = quantity;
+        
+        //recalculate the price
+        cart.totalPrice = this.calculateTotalPrice(cart.items) as any;
+
+        await cart.save();
+        return cart.populate("items.product")
+        
+        
+    }
 }
+
+export const cartServices = new CartService();
