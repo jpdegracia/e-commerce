@@ -7,46 +7,54 @@ import nodemailer from "nodemailer";
 //admin controllers
 export const createUser = async (req: Request, res: Response) => {
     try {
-            const { fullname, email, password, role } = req.body;
-    
-            const newUser = await userService.createUser({
-                fullname,
-                email,
-                password,
-                role
-            } as any);
-            // 3. Transporter configuration
-            const transporter = nodemailer.createTransport({
-                service: "gmail",
-                auth: {
-                    user: process.env.EMAIL_USER,
-                    pass: process.env.EMAIL_PASS
-                }
-            });
-    
-            // Create the verification URL pointing to your backend link or frontend route
-            const verifyUrl = `http://localhost:3000/auth/verify-email?token=${newUser.verificationToken}`;
-    
-            // 4. 🔗 Tie your template here by passing the user's fullname and link!
-            const mailOptions = {
-                from: process.env.EMAIL_USER,
-                to: email,
-                subject: "Welcome! Please Verify Your Email Address",
-                html: getEmailVerificationTemplate(newUser.fullname, verifyUrl)
-            };
-    
-            // 5. Fire off the email
-            await transporter.sendMail(mailOptions);
-    
-            res.status(201).json({ message: "User registered Successfully", user: newUser});
-        } catch (error) {
-            if (error instanceof Error) {
-                 res.status(400).json({ error: error.message})
-            } else {
-                res.status(500).json({ error: "Server Error", details: error})
+        const { fullname, email, password, role } = req.body;
+
+        // 🚀 1. Destructure BOTH the clean user object AND the generated token from your service!
+        const { cleanUser, verificationToken } = await userService.createUser({
+            fullname,
+            email,
+            password,
+            role
+        } as any);
+
+        // 2. Transporter configuration (Consider moving this to a config utility file later to keep code DRY!)
+        const transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
             }
+        });
+
+        // 3. Create the verification URL pointing flawlessly to your Angular route
+        const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:4200";
+        const verifyUrl = `${CLIENT_URL}/verify-email?token=${verificationToken}`;
+
+        // 4. Tie your HTML template here using the correct service properties
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: "Account Created! Please Verify Your Email Address",
+            html: getEmailVerificationTemplate(cleanUser.fullname, verifyUrl)
+        };
+
+        // 5. Fire off the verification email to the user the admin just provisioned
+        await transporter.sendMail(mailOptions);
+
+        // Return a clean response back to the Admin Dashboard client app
+        return res.status(201).json({ 
+            message: "User created by Admin successfully. Verification email sent.", 
+            user: cleanUser 
+        });
+
+    } catch (error) {
+        if (error instanceof Error) {
+            return res.status(400).json({ error: error.message });
+        } else {
+            return res.status(500).json({ error: "Server Error", details: error });
         }
-}
+    }
+};
 
 export const getAllUsers = async (req: Request, res: Response) => {
     try {

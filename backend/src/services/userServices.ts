@@ -1,5 +1,6 @@
 import { UserModel } from "../models/userModel";
 import IUser from "../interface/IUser";
+import crypto from "crypto";
 
 class UserService {
     
@@ -9,14 +10,18 @@ class UserService {
             throw new Error(`A user with the email '${userData.email}' already exists.`);
         }
 
-        const newUser = new UserModel(userData); 
-        await (newUser as any).hashPassword();   
-        await newUser.save(); 
+        const verificationToken = crypto.randomBytes(32).toString("hex");
+        const newUser = new UserModel({
+            ...userData,
+            verificationToken,
+            isActive: false
+        });
+        await (newUser as any).hashPassword();
+        await newUser.save();
 
         const userResponse = newUser.toObject();
         const { password, ...cleanUser } = userResponse;
-
-        return cleanUser;
+        return { cleanUser, verificationToken };
     }
 
     public async getAll() {

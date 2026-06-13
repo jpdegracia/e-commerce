@@ -95,6 +95,7 @@ class AuthService {
         // Activate the user and clear the token so it can't be reused
         user.isActive = true;
         user.verificationToken = undefined;
+        user.expiresAt = undefined;
         await user.save();
 
         return { message: "Email verified successfully! You can now log in." };

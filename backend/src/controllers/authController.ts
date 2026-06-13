@@ -28,7 +28,8 @@ export const authRegisterUser = async (req: Request, res: Response) => {
 
         console.log("GENERATED TOKEN:", verificationToken);
 
-        const verifyUrl = `${process.env.BACKEND_URL}/auth/verify-email?token=${cleanUser.verificationToken}`;
+        const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:4200";
+        const verifyUrl = `${CLIENT_URL}/verify-email?token=${verificationToken}`;
 
         const mailOptions = {
             from: process.env.EMAIL_USER,
@@ -93,7 +94,7 @@ export const logout = async (req: Request, res: Response) => {
 // 4. VERIFY EMAIL
 export const verifyEmail = async (req: Request, res: Response) => {
     try {
-        const { token } = req.query;
+        const { token } = req.body;
 
         if (!token) {
             return res.status(400).json({ error: "Verification token is required." });

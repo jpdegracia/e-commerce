@@ -46,7 +46,12 @@ const UserSchema = new Schema<IUser>({
     },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
-    verificationToken: { type: String }
+    verificationToken: { type: String },
+    expiresAt: {
+        type: Date,
+        default: Date.now,
+        index: { expires: '30m' } // MongoDB drops this doc exactly 30 mins after creation!
+    }
     
 }, {timestamps: true});
 

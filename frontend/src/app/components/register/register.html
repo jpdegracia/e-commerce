@@ -1,21 +1,17 @@
 <div class="flex min-h-[80vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-  
   <div class="w-full max-w-md space-y-8 rounded-xl bg-white p-8 shadow-lg">
     
     <div class="text-center">
       <h2 class="text-3xl font-bold tracking-tight text-slate-800">Create an Account</h2>
-      <p class="mt-2 text-sm text-gray-600">
-        Join Haven's Store today
-      </p>
+      <p class="mt-2 text-sm text-gray-600">Join Haven's Store today</p>
     </div>
 
     <form (ngSubmit)="onSubmit()" #registerForm="ngForm" class="mt-8 space-y-6">
-      
       <div class="space-y-4">
         
         <div>
           <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
-          <input id="name" name="name" [(ngModel)]="registerData.fullname" type="text" required 
+          <input id="name" name="fullname" [(ngModel)]="registerData.fullname" type="text" required 
             class="mt-1 block w-full rounded-md border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm transition-colors" 
             placeholder="John Doe">
         </div>
@@ -29,16 +25,50 @@
 
         <div>
           <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-          <input id="password" name="password" [(ngModel)]="registerData.password" type="password" required 
-            class="mt-1 block w-full rounded-md border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm transition-colors" 
-            placeholder="••••••••">
+          <div class="relative mt-1">
+            <input id="password" name="password" [(ngModel)]="registerData.password" 
+              [type]="showPassword ? 'text' : 'password'" required 
+              class="block w-full rounded-md border border-gray-300 pl-4 pr-10 py-2.5 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm transition-colors" 
+              placeholder="••••••••">
+            
+            <button type="button" (click)="showPassword = !showPassword" 
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 cursor-pointer">
+              <ng-icon [name]="showPassword ? 'faSolidEyeSlash' : 'faSolidEye'" class="text-lg"></ng-icon>
+            </button>
+          </div>
+          
+          <div class="mt-2 space-y-1.5 text-xs">
+            <div class="flex items-center gap-2 transition-colors duration-200"
+                 [ngClass]="isLengthValid ? 'text-emerald-600' : 'text-gray-400'">
+              <span class="h-1.5 w-1.5 rounded-full" [ngClass]="isLengthValid ? 'bg-emerald-500' : 'bg-gray-300'"></span>
+              At least 8 characters long
+            </div>
+            <div class="flex items-center gap-2 transition-colors duration-200"
+                 [ngClass]="hasUppercase ? 'text-emerald-600' : 'text-gray-400'">
+              <span class="h-1.5 w-1.5 rounded-full" [ngClass]="hasUppercase ? 'bg-emerald-500' : 'bg-gray-300'"></span>
+              Contains 1 uppercase letter
+            </div>
+            <div class="flex items-center gap-2 transition-colors duration-200"
+                 [ngClass]="hasSpecialChar ? 'text-emerald-600' : 'text-gray-400'">
+              <span class="h-1.5 w-1.5 rounded-full" [ngClass]="hasSpecialChar ? 'bg-emerald-500' : 'bg-gray-300'"></span>
+              Contains 1 special character
+            </div>
+          </div>
         </div>
 
         <div>
           <label for="confirm-password" class="block text-sm font-medium text-gray-700">Confirm Password</label>
-          <input id="confirm-password" name="confirmPassword" [(ngModel)]="registerData.confirmPassword" type="password" required 
-            class="mt-1 block w-full rounded-md border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm transition-colors" 
-            placeholder="••••••••">
+          <div class="relative mt-1">
+            <input id="confirm-password" name="confirmPassword" [(ngModel)]="registerData.confirmPassword" 
+              [type]="showConfirmPassword ? 'text' : 'password'" required 
+              class="block w-full rounded-md border border-gray-300 pl-4 pr-10 py-2.5 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm transition-colors" 
+              placeholder="••••••••">
+            
+            <button type="button" (click)="showConfirmPassword = !showConfirmPassword" 
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 cursor-pointer">
+              <ng-icon [name]="showConfirmPassword ? 'faSolidEyeSlash' : 'faSolidEye'" class="text-lg"></ng-icon>
+            </button>
+          </div>
         </div>
 
       </div>
@@ -48,7 +78,6 @@
           Create Account
         </button>
       </div>
-
     </form>
 
     <p class="text-center text-sm text-gray-600">

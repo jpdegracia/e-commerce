@@ -4,8 +4,9 @@ import { CartComponent } from './components/cart/cart';
 import { ProductsComponent } from './components/products/products';
 import { CategoryComponent } from './components/category/category';
 import { LoginComponent } from './components/login/login';
-import { RegisterComponent } from './components/register/register'
-import { ForgotPasswordComponent } from './components/forgot-password/forgot-password'
+import { RegisterComponent } from './components/register/register';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password';
+import { VerifyEmailComponent } from './components/verify-email/verify-email';
 
 export const routes: Routes = [
   // 🏠 Homepage
@@ -20,6 +21,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'verify-email', component: VerifyEmailComponent },
 
 
   

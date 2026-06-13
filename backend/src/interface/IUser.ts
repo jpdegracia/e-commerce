@@ -9,6 +9,7 @@ interface IUser {
     resetPasswordToken?: string,
     resetPasswordExpires?: Date,
     verificationToken?: string,
+    expiresAt?: Date
 }
 
 export default IUser;
