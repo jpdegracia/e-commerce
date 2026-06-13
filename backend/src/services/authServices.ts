@@ -15,7 +15,7 @@ class AuthService {
 
     //register
     public async authRegister(userData: IUser) {
-        const user = await UserModel.findOne({ email: userData.email});
+        const user = await UserModel.findOne({ email: userData.email });
         if (user) {
             throw new Error(`A user with the email '${userData.email}' already exists.`); 
         }

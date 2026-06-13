@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import { connectDB } from "./configs/connectDb";
+import cors from 'cors';
 
 //Routes
 import userRoutes from "./routes/userRoutes"
@@ -23,7 +24,12 @@ connectDB();
 
 // 3. MIDDLEWARE
 // This is critical! It allows Express to read incoming JSON data in req.body
+app.use(cors({
+    origin: 'http://localhost:4200',
+    credentials: true
+}))
 app.use(express.json()); 
+app.use(express.urlencoded({ extended: true }))
 
 // 4. ROUTES
 app.use("/users", userRoutes); 

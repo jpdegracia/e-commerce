@@ -1,0 +1,39 @@
+<div class="fixed top-24 right-5 z-100 flex flex-col gap-3 w-full max-w-sm pointer-events-none">
+  
+  <!-- Loop through active toasts using modern Angular syntax -->
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div class="pointer-events-auto flex items-center justify-between p-4 rounded-xl shadow-xl border text-sm font-semibold transition-all duration-300 transform translate-y-0 scale-100 animate-[slideIn_0.2s_ease-out] w-full"
+         [class.bg-emerald-50]="toast.type === 'success'"
+         [class.border-emerald-200]="toast.type === 'success'"
+         [class.text-emerald-900]="toast.type === 'success'"
+         [class.bg-rose-50]="toast.type === 'error'"
+         [class.border-rose-200]="toast.type === 'error'"
+         [class.text-rose-900]="toast.type === 'error'"
+         [class.bg-blue-50]="toast.type === 'info'"
+         [class.border-blue-200]="toast.type === 'info'"
+         [class.text-blue-900]="toast.type === 'info'">
+      
+      <!-- Left side: Icon + Message -->
+      <div class="flex items-center gap-3">
+        @if (toast.type === 'success') { 
+          <ng-icon name="faSolidCircleCheck" class="text-xl text-emerald-600 shrink-0"></ng-icon> 
+        }
+        @if (toast.type === 'error') { 
+          <ng-icon name="faSolidCircleExclamation" class="text-xl text-rose-600 shrink-0"></ng-icon> 
+        }
+        @if (toast.type === 'info') { 
+          <ng-icon name="faSolidCircleInfo" class="text-xl text-blue-600 shrink-0"></ng-icon> 
+        }
+        
+        <span>{{ toast.message }}</span>
+      </div>
+
+      <!-- Right side: Close X Button -->
+      <button (click)="toastService.clear(toast.id)" class="ml-4 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer shrink-0 flex items-center justify-center">
+        <ng-icon name="faSolidCircleXmark" class="text-base"></ng-icon>
+      </button>
+
+    </div>
+  }
+
+</div>

@@ -1,0 +1,17 @@
+<div class="product-container">
+  <h2>Our Store Inventory</h2>
+
+  <div class="product-grid">
+    @for (product of products; track product._id) {
+      <div class="product-card">
+        <img [src]="product.image || 'https://via.placeholder.com/150'" alt="{{ product.productname }}">
+        <h3>{{ product.productname }}</h3>
+        <p class="price">₱{{ product.price }}</p>
+        <p class="stock">Stock left: {{ product.stock }}</p>
+        <button [disabled]="product.stock < 1">Add to Cart</button>
+      </div>
+    } @empty {
+      <p>No products found. Is your backend running and seeded with data?</p>
+    }
+  </div>
+</div>

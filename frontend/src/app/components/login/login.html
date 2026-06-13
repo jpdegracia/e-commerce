@@ -1,0 +1,58 @@
+<div class="flex min-h-[80vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+  
+  <div class="w-full max-w-md space-y-8 rounded-xl bg-white p-8 shadow-lg">
+    
+    <div class="text-center">
+      <h2 class="text-3xl font-bold tracking-tight text-slate-800">Welcome Back</h2>
+      <p class="mt-2 text-sm text-gray-600">
+        Sign in to your account
+      </p>
+    </div>
+
+    <form class="mt-8 space-y-6">
+      
+      <div class="space-y-4">
+        
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700">Email address</label>
+          <input id="email" name="email" type="email" required 
+            class="mt-1 block w-full rounded-md border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm transition-colors" 
+            placeholder="you@example.com">
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+          <input id="password" name="password" type="password" required 
+            class="mt-1 block w-full rounded-md border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm transition-colors" 
+            placeholder="••••••••">
+        </div>
+
+      </div>
+
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <input id="remember-me" name="remember-me" type="checkbox" 
+            class="h-4 w-4 rounded border-gray-300 text-slate-800 focus:ring-slate-800 cursor-pointer">
+          <label for="remember-me" class="ml-2 block text-sm text-gray-900 cursor-pointer">Remember me</label>
+        </div>
+
+        <div class="text-sm">
+          <a routerLink="/forgot-password" class="font-medium text-blue-600 hover:text-blue-500 transition-colors">Forgot password?</a>
+        </div>
+      </div>
+
+      <div>
+        <button type="submit" class="btn btn-solid flex w-full justify-center py-2.5 text-sm">
+          Sign in
+        </button>
+      </div>
+
+    </form>
+
+    <p class="text-center text-sm text-gray-600">
+      Not a member? 
+      <a routerLink="/register" class="font-medium text-blue-600 hover:text-blue-500 transition-colors">Create an account</a>
+    </p>
+
+  </div>
+</div>
