@@ -4,7 +4,7 @@
 @layer components {
   /* A base button class with all the shared structural styles */
   .btn {
-    @apply flex items-center gap-2 rounded-full px-4 py-2 font-bold transition-colors cursor-pointer;
+    @apply flex items-center gap-2 rounded-xl px-4 py-2 font-bold transition-colors cursor-pointer;
   }
 
   /* Specific color variations */
@@ -12,7 +12,14 @@
     @apply bg-slate-800 text-white hover:bg-slate-700;
   }
 
-  /* Your new Login button style (no background, text changes on hover) */
+  .btn-login {
+    @apply bg-orange-600 text-white hover:bg-slate-700;
+  }
+
+  .btn-register {
+    @apply bg-blue-500 text-white hover:bg-slate-700;
+  }
+
   .btn-ghost {
     @apply text-slate-800 hover:text-blue-600;
   }
@@ -21,6 +28,6 @@
 /* You can still put your global body styling here too! */
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-800;
+    @apply bg-gray-200 text-gray-800;
   }
 }
