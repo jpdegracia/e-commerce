@@ -1,17 +1,27 @@
-import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { faSolidCartShopping } from '@ng-icons/font-awesome/solid'
+import { faSolidCartShopping, faSolidChevronDown, faSolidUser } from '@ng-icons/font-awesome/solid'
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, NgIcon], // 👈 Import these so your HTML buttons work!
-  providers: [provideIcons({ faSolidCartShopping})],
+  imports: [RouterLink, NgIcon], // 👈 Import these so your HTML buttons work!
+  providers: [provideIcons({ faSolidCartShopping, faSolidChevronDown, faSolidUser})],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css'
 })
 export class NavbarComponent {
-  // We will add state management here later to update the cart badge dynamically!
+  public authService = inject(AuthService); 
+  private router = inject(Router);
+
+  isDropdownOpen = false;
+
+  onLogout() {
+    this.authService.logout();
+    this.isDropdownOpen = false; // Ensure it closes on logout
+    this.router.navigate(['/login']);
+  }
 }
 

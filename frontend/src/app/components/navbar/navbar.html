@@ -10,13 +10,6 @@
     
     <div class="flex items-center gap-4">
       
-      <!-- <a routerLink="/" 
-         routerLinkActive="text-blue-600 font-semibold" 
-         [routerLinkActiveOptions]="{exact: true}"
-         class="font-bold transition-colors hover:text-blue-500">
-        Home
-      </a> -->
-
       <a routerLink="/products" class="btn btn-ghost">
         Products 
       </a>
@@ -25,13 +18,49 @@
         Category 
       </a>
 
-      <a routerLink="/login" class="btn btn-login">
-        Login
-      </a>
+      @if (!authService.isLoggedIn()) {
+        
+        <a routerLink="/login" class="btn btn-login">
+          Login
+        </a>
 
-      <a routerLink="/register" class="btn btn-register">
-        Sign Up
-      </a>
+        <a routerLink="/register" class="btn btn-register">
+          Sign Up
+        </a>
+
+      } @else {
+        
+        <div class="relative">
+          
+          <button (click)="isDropdownOpen = !isDropdownOpen" 
+                  class="btn btn-profile">
+            
+            <ng-icon name="faSolidUser" class="text-sm text-slate-700"></ng-icon>
+            
+            <span class="font-semibold text-sm">My Account</span>
+            
+            <ng-icon name="faSolidChevronDown" 
+                     class="text-xs ml-1 text-slate-600 transition-transform duration-300" 
+                     [class.rotate-180]="isDropdownOpen">
+            </ng-icon>
+            
+          </button>
+
+          @if (isDropdownOpen) {
+            <div class="absolute right-0 mt-3 w-48 rounded-xl shadow-xl bg-white ring-1 ring-black ring-opacity-5 overflow-hidden origin-top-right animate-[slideIn_0.15s_ease-out]">
+              <div class="py-1">
+                <a routerLink="/profile" (click)="isDropdownOpen = false" class="block px-4 py-3 text-sm font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-700 transition-colors cursor-pointer border-b border-gray-50">
+                  My Profile
+                </a>
+                <button (click)="onLogout()" class="block w-full text-left px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors cursor-pointer">
+                  Logout
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+      }
 
       <a routerLink="/cart" class="btn btn-ghost hover:bg-yellow-400" alt="Cart">
         <ng-icon name="faSolidCartShopping" class="text-lg"></ng-icon>
