@@ -33,6 +33,25 @@
 
       </div>
 
+      <div class="flex items-center justify-between mt-4 mb-6">
+        
+        <div class="flex items-center gap-2">
+          <input id="rememberMe" 
+                 name="rememberMe" 
+                 type="checkbox" 
+                 class="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500 transition-colors cursor-pointer">
+          <label for="rememberMe" class="block text-sm text-gray-700 cursor-pointer select-none">
+            Remember me
+          </label>
+        </div>
+
+        <a routerLink="/forgot-password" 
+           class="text-sm font-bold text-orange-600 hover:text-orange-500 transition-colors cursor-pointer">
+          Forgot password?
+        </a>
+        
+      </div>
+
       <div>
         <button type="submit" class="btn btn-solid flex w-full justify-center py-2.5 text-sm">
           Sign In

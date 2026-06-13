@@ -45,4 +45,16 @@ export class AuthService {
     this.isLoggedIn.set(false); // 🔥 Alert the entire app that we logged out!
   }
 
+  //forgot-password
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/forgot-password`, { email })
+  }
+
+  //reset-password
+  resetPassword(token: string, password: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/reset-password`, { 
+      token: token, 
+      newPassword: password })
+  }
+
 }
