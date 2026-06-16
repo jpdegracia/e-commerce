@@ -1,17 +1,102 @@
-<div class="product-container">
-  <h2>Our Store Inventory</h2>
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
 
-  <div class="product-grid">
-    @for (product of products; track product._id) {
-      <div class="product-card">
-        <img [src]="product.image || 'https://via.placeholder.com/150'" alt="{{ product.productname }}">
-        <h3>{{ product.productname }}</h3>
-        <p class="price">₱{{ product.price }}</p>
-        <p class="stock">Stock left: {{ product.stock }}</p>
-        <button [disabled]="product.stock < 1">Add to Cart</button>
+  <div class="mb-10">
+    <h2 class="text-xl font-bold tracking-tight text-slate-800 mb-4 uppercase">Categories</h2>
+
+    @if (isLoadingCategories) {
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        <div class="h-24 bg-gray-200 animate-pulse rounded-lg"></div>
+        <div class="h-16 bg-gray-200 animate-pulse rounded-lg"></div>
+        <div class="h-16 bg-gray-200 animate-pulse rounded-lg"></div>
+        <div class="h-16 bg-gray-200 animate-pulse rounded-lg"></div>
+        <div class="h-16 bg-gray-200 animate-pulse rounded-lg"></div>
       </div>
-    } @empty {
-      <p>No products found. Is your backend running and seeded with data?</p>
+    }
+
+    @if (!isLoadingCategories && categories.length > 0) {
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        
+        @for (cat of categories; track cat._id) {
+          <a [routerLink]="['/products/category', cat._id]" 
+             class="flex items-center p-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md hover:border-orange-500 transition-all duration-200 group cursor-pointer">
+            
+            <div class="w-24 h-24 shrink-0 bg-gray-50 rounded-md overflow-hidden flex items-center justify-center mr-3">
+              <img [src]="cat.image || 'assets/placeholder.png'" 
+                   alt="{{ cat.categoryname }}" 
+                   class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
+            </div>
+
+            <span class="text-sm font-semibold text-gray-700 leading-tight line-clamp-2">
+              {{ cat.categoryname }}
+            </span>
+          </a>
+        }
+
+      </div>
     }
   </div>
+
+  <hr class="mb-10 border-gray-200">
+
+  <div class="flex items-center justify-between mb-8">
+    <h2 class="text-3xl font-bold tracking-tight text-slate-800">Our Products</h2>
+  </div>
+
+  @if (errorMessage) {
+    <div class="rounded-md bg-red-50 p-4 text-center text-sm text-red-600 border border-red-200">
+      {{ errorMessage }}
+    </div>
+  }
+
+  @if (isLoadingProducts) {
+    <div class="flex justify-center items-center h-64 w-full">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+    </div>
+  }
+
+  @if (!isLoadingProducts && !errorMessage) {
+    
+    @if (products.length === 0) {
+      <div class="text-center py-16 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+        <p class="text-gray-500 font-medium">No products available at the moment.</p>
+        <p class="text-sm text-gray-400 mt-1">Check back later for new arrivals!</p>
+      </div>
+    } 
+    
+    @else {
+      <div class="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+        
+        @for (product of products; track product._id) {
+          <div class="group relative flex flex-col bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border border-gray-100">
+            
+            <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden bg-gray-100 lg:aspect-none lg:h-64">
+              <img [src]="product.images?.[0] || 'assets/placeholder.png'" 
+                   alt="{{ product.productname }}" 
+                   class="h-full w-full object-cover object-center lg:h-full lg:w-full transition-transform duration-300 group-hover:scale-105">
+            </div>
+            
+            <div class="flex flex-col flex-1 p-4">
+              <div class="flex justify-between items-start gap-4">
+                <div>
+                  <h3 class="text-sm font-bold text-gray-800 line-clamp-2">
+                    <a [routerLink]="['/product', product._id]">
+                      <span aria-hidden="true" class="absolute inset-0"></span>
+                      {{ product.productname }}
+                    </a>
+                  </h3>
+                  <p class="mt-1 text-xs text-gray-500 uppercase tracking-wider">
+                    {{ product.category?.categoryname || 'Uncategorized' }}
+                  </p>
+                </div>
+                <p class="text-sm font-black text-orange-600">${{ product.price }}</p>
+              </div>
+            </div>
+
+          </div>
+        }
+
+      </div>
+    }
+  }
+
 </div>

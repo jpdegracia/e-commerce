@@ -29,6 +29,11 @@ class ProductService {
         return product;
     }
 
+    public async getProductByCategory(categoryId: string): Promise<any[]> {
+        const products = await ProductModel.find({ category: categoryId }).populate('category');
+        return products;
+    }
+
     public async updateProduct(id: string, updateData: Partial<IProduct>) {
         const product = await ProductModel.findByIdAndUpdate(id, updateData, {new: true, runValidators: true});
         if (!product) {

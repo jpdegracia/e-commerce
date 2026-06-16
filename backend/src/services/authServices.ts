@@ -16,38 +16,57 @@ interface ILogin {
 class AuthService {
 
     //register
-    public async authRegister(userData: any) {
-        // 1. Check if email exists
-        const user = await UserModel.findOne({ email: userData.email });
-        if (user) {
-            throw new Error(`A user with the email '${userData.email}' already exists.`); 
+    public async authRegister(userData: any) { // Adjust type to IUser if strictly typed
+        // 1. Check for existing email
+        const existingUser = await UserModel.findOne({ email: userData.email });
+        if (existingUser) {
+            throw new Error(`A user with the email '${userData.email}' already exists.`);
         }
 
-        // 2. Force the default 'User' role
-        const defaultRole = await RoleModel.findOne({ rolename: 'User' });
-        if (!defaultRole) {
-            throw new Error("Critical Error: Default 'User' role is missing from the database.");
+        // 2. 🚀 Smart Role Resolution
+        let assignedRoleId;
+
+        if (userData.role) {
+            // Scenario A: Frontend passed a valid ObjectId (e.g., from a dropdown value)
+            if (mongoose.Types.ObjectId.isValid(userData.role) && String(userData.role).length === 24) {
+                assignedRoleId = userData.role;
+            } 
+            // Scenario B: Frontend passed a plain text string (e.g., "Admin" or "User")
+            else {
+                const foundRole = await RoleModel.findOne({ rolename: userData.role });
+                if (!foundRole) {
+                    throw new Error(`The role '${userData.role}' does not exist in the database.`);
+                }
+                assignedRoleId = foundRole._id;
+            }
+        } else {
+            // Scenario C: Admin left the role blank, fallback to default 'User'
+            const defaultRole = await RoleModel.findOne({ rolename: 'User' });
+            if (!defaultRole) {
+                throw new Error("Critical Error: Default 'User' role is missing from the database.");
+            }
+            assignedRoleId = defaultRole._id;
         }
 
-        // 3. Generate verification data
+        // 3. Generate tokens and timestamps
         const verificationToken = crypto.randomBytes(32).toString("hex");
-        
-        // 4. Safely build the user without the spread operator
+
+        // 4. Safely construct the user document without the spread operator
         const newUser = new UserModel({
             fullname: userData.fullname,
             email: userData.email,
             password: userData.password,
-            role: defaultRole._id, // Locked to standard User ObjectId
+            role: assignedRoleId, // 🚀 Relational ObjectId securely attached!
             verificationToken,
             isActive: false,
-            expiresAt: new Date(Date.now() + 30 * 60 * 1000) // 30-minute expiration
+            expiresAt: new Date(Date.now() + 30 * 60 * 1000) // ⏳ 30-minute expiration
         });
 
-        // 5. Hash & Save
+        // 5. Hash and Save
         await (newUser as any).hashPassword();
         await newUser.save();
 
-        // 6. Clean and return response
+        // 6. Clean response
         const userResponse = newUser.toObject();
         const { password, ...cleanUser } = userResponse;
         
@@ -56,7 +75,10 @@ class AuthService {
 
     //login
     public async login(credentials: ILogin) {
-        const user = await UserModel.findOne({ email: credentials.email })
+        const user = await UserModel.findOne({ email: credentials.email }).populate({
+            path: 'role',
+            populate: { path: 'permissions' } 
+        });
 
         if(!user) {
             throw new Error("Invalid Email or Password")
@@ -71,7 +93,7 @@ class AuthService {
 
         const secret = process.env.JWT_SECRET || "";
         const token = jwt.sign(
-            { id: user._id},
+            { id: user._id, role: user.role},
             secret,
             {expiresIn: "1d"}
 

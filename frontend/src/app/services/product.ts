@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -10,10 +11,21 @@ export class ProductService {
   private http = inject(HttpClient);
   
   // Point this to your backend products URL
-  private apiUrl = 'http://localhost:5000/api/products'; 
+  private apiUrl = `${environment.apiUrl}/products`; 
 
-  // Fetch all products from your Node.js backend
+  //create products
+
+  //all products
   getAllProducts(): Observable<any> {
-    return this.http.get(this.apiUrl);
+    return this.http.get(`${this.apiUrl}/`);
+  }
+
+  //get all products by category
+  getProductsByCategory(categoryId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/category/${categoryId}`)
+  }
+
+  getProductByID(productId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${productId}`)
   }
 }

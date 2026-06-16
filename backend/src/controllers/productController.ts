@@ -52,6 +52,34 @@ export const getProductByID = async (req: Request, res: Response) => {
     }
 }
 
+export const getProductsByCategory = async (req: Request, res: Response) => {
+    try {
+        // 🚀 Grab the category ID from the URL parameters
+        const id = req.params.id as string;
+        
+        // Call your service function
+        const products = await productServices.getProductByCategory(id);
+        
+        // Return 200 with the exact same structure your Angular frontend expects
+        res.status(200).json({ 
+            message: "Fetching Products by Category", 
+            details: products 
+        });
+    } catch (error) {
+        if (error instanceof Error) {
+            res.status(400).json({ 
+                message: "Error Fetching Products by Category", 
+                error: error.message 
+            });
+        } else {
+            res.status(500).json({ 
+                message: "Server Error", 
+                error 
+            });
+        }
+    }
+}
+
 export const updateProduct = async (req: Request, res: Response) => {
     try {
         const id = req.params.id as string;

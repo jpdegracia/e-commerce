@@ -1,1 +1,130 @@
-<p>products works!</p>
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+  
+  <div class="mb-8">
+    <a routerLink="/" class="text-sm font-semibold text-orange-600 hover:text-orange-500 inline-flex items-center gap-1 transition-colors">
+      ← Back to Shop
+    </a>
+  </div>
+
+  @if (isLoading) {
+    <div class="flex flex-col justify-center items-center h-96 w-full gap-4">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+      <p class="text-sm text-gray-500 font-medium animate-pulse">Loading product specification...</p>
+    </div>
+  }
+
+  @if (!isLoading && errorMessage) {
+    <div class="rounded-xl bg-red-50 p-6 text-center border border-red-200 max-w-xl mx-auto my-12">
+      <p class="text-sm font-semibold text-red-600 mb-2">Error Loading Page</p>
+      <p class="text-xs text-red-500 mb-4">{{ errorMessage }}</p>
+      <button routerLink="/" class="px-4 py-2 bg-white text-xs font-bold text-slate-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all">
+        Return Home
+      </button>
+    </div>
+  }
+
+  @if (!isLoading && !errorMessage && product) {
+    
+    <div class="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16">
+      
+      <div class="flex flex-col gap-4">
+        <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden bg-gray-50 border border-gray-100 rounded-2xl h-96 sm:h-112.5">
+          <img [src]="selectedImage || 'assets/placeholder.png'" 
+               alt="{{ product.productname }}" 
+               class="h-full w-full object-contain object-center transition-all duration-300">
+        </div>
+
+        @if (product.images && product.images.length > 1) {
+          <div class="flex gap-3 overflow-x-auto pb-2">
+            @for (img of product.images; track img) {
+              <button (click)="changeMainImage(img)"
+                      [class.border-orange-500]="selectedImage === img"
+                      [class.border-gray-200]="selectedImage !== img"
+                      class="w-20 h-20 bg-white border-2 rounded-xl overflow-hidden shrink-0 transition-all hover:border-orange-400">
+                <img [src]="img" alt="Thumbnail" class="w-full h-full object-cover">
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0 flex flex-col justify-between">
+        <div>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-50 text-orange-700 uppercase tracking-wide">
+            {{ product.category?.categoryname || 'Uncategorized' }}
+          </span>
+
+          <h1 class="text-3xl font-extrabold tracking-tight text-slate-800 mt-3 mb-4">
+            {{ product.productname }}
+          </h1>
+
+          <div class="mt-3 flex items-baseline gap-4">
+            <p class="text-3xl font-black text-orange-600">${{ product.price }}</p>
+          </div>
+
+          <hr class="my-6 border-gray-200">
+
+          <div class="space-y-4">
+            <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider">Product Description</h3>
+            <p class="text-sm text-slate-600 leading-relaxed font-medium">
+              {{ product.description || 'No specialized description provided for this catalog entry.' }}
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-10 flex flex-col gap-6">
+          
+          <div class="flex flex-row items-center gap-6">
+            
+            <div class="flex items-center border-2 border-gray-200 rounded-xl bg-white h-12 w-32 overflow-hidden shrink-0">
+              <button (click)="decrementQuantity()" 
+                      [disabled]="quantity <= 1 || product.stock <= 0"
+                      class="px-3 h-full bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-orange-600 border-r border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-lg font-bold">
+                −
+              </button>
+              
+              <div class="flex-1 text-center font-black text-base text-gray-800 select-none">
+                {{ product.stock > 0 ? quantity : 0 }}
+              </div>
+              
+              <button (click)="incrementQuantity()" 
+                      [disabled]="quantity >= product.stock || product.stock <= 0"
+                      class="px-3 h-full bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-orange-600 border-l border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-lg font-bold">
+                +
+              </button>
+            </div>
+
+            <div>
+              @if (product.stock > 0) {
+                <span class="text-sm font-medium text-gray-500 flex items-center gap-1.5">
+                   {{ product.stock }} units available
+                </span>
+              } @else {
+                <span class="text-sm font-medium text-red-600 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                  Out of Stock
+                </span>
+              }
+            </div>
+            
+          </div>
+          
+          <div>
+            <button (click)="addToCart()"
+                    [disabled]="product.stock <= 0"
+                    class="w-full sm:w-auto px-10 bg-orange-600 border border-transparent rounded-xl h-12 flex items-center justify-center text-sm font-bold text-white hover:bg-orange-500 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed transition-all duration-200 shadow-sm shadow-orange-600/10 gap-3">
+
+                 <ng-icon name="faSolidCartShopping" class="text-base"></ng-icon>
+              
+              {{ product.stock > 0 ? 'Add to Cart' : 'Temporarily Out of Stock' }}
+            </button>
+          </div>
+          
+        </div>
+
+      </div>
+
+    </div>
+  }
+
+</div>
