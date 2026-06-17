@@ -1,1 +1,141 @@
-<p>cart works!</p>
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 relative">
+  <h1 class="text-3xl font-extrabold tracking-tight text-slate-800 mb-8">Shopping Cart</h1>
+
+  @if (cartService.cart().length === 0) {
+    <div class="text-center py-20 bg-gray-50 rounded-2xl border border-dashed border-gray-300">
+      <div class="w-16 h-16 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">🛒</div>
+      <h3 class="text-lg font-bold text-gray-800">Your cart is empty</h3>
+      <p class="text-sm text-gray-500 mt-2 mb-6">Looks like you haven't added any items yet.</p>
+      <a routerLink="/" class="px-6 py-3 bg-orange-600 text-white font-bold rounded-xl hover:bg-orange-500 transition-colors">
+        Start Shopping
+      </a>
+    </div>
+  }
+
+  @else {
+    <div class="lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start">
+      
+      <div class="lg:col-span-8 rounded-2xl bg-white px-4 py-6 sm:p-6 lg:mt-0 lg:p-8 border border-gray-100 shadow-sm overflow-x-auto">
+        <table class="w-full text-left border-collapse min-w-[600px]">
+          
+          <thead>
+            <tr class="border-b border-gray-200 text-xs text-gray-500 uppercase tracking-wider">
+              <th class="pb-4 font-bold w-2/5">Product</th>
+              <th class="pb-4 font-bold text-center">Unit Price</th>
+              <th class="pb-4 font-bold text-center">Quantity</th>
+              <th class="pb-4 font-bold text-right">Total</th>
+            </tr>
+          </thead>
+          
+          <tbody class="divide-y divide-gray-200">
+            @for (item of cartService.cart(); track item.productId) {
+              <tr class="hover:bg-gray-50/50 transition-colors">
+                
+                <td class="py-6">
+                  <div class="flex items-center gap-4">
+                    <div class="shrink-0 rounded-xl border border-gray-200 bg-white overflow-hidden w-20 h-20 shadow-sm">
+                      <img [src]="item.image" alt="{{ item.productname }}" class="h-full w-full object-cover object-center">
+                    </div>
+                    <h3 class="text-sm font-bold text-gray-800">
+                      <a [routerLink]="['/product', item.productId]" class="hover:text-orange-600 transition-colors line-clamp-2">{{ item.productname }}</a>
+                    </h3>
+                  </div>
+                </td>
+
+                <td class="py-6 text-center">
+                  <p class="text-sm font-bold text-gray-600">${{ item.price | number:'1.2-2' }}</p>
+                </td>
+
+                <td class="py-6">
+                  <div class="flex justify-center">
+                    <div class="flex items-center border border-gray-300 rounded-lg bg-white h-9 w-28 overflow-hidden shrink-0 shadow-sm">
+                      <button (click)="handleQuantityChange(item.productId, item.quantity, -1)" 
+                              class="btn-quantity">
+                        −
+                      </button>
+                      
+                      <div class="flex-1 text-center font-bold text-sm text-gray-800 select-none">
+                        {{ item.quantity }}
+                      </div>
+                      
+                      <button (click)="handleQuantityChange(item.productId, item.quantity, 1)" 
+                              [disabled]="item.quantity >= item.stock"
+                              class="btn-quantity">
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="py-6 text-right">
+                  <p class="text-base font-black text-orange-600">${{ (item.price * item.quantity) | number:'1.2-2' }}</p>
+                </td>
+
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-8 rounded-2xl bg-gray-50 px-4 py-6 sm:p-6 lg:col-span-4 lg:mt-0 lg:p-8 border border-gray-100 shadow-sm">
+        <h2 class="text-lg font-bold text-gray-900">Order Summary</h2>
+
+        <dl class="mt-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <dt class="text-sm text-gray-600">Subtotal ({{ cartService.totalItems() }} items)</dt>
+            <dd class="text-sm font-medium text-gray-900">${{ cartService.totalPrice() | number:'1.2-2' }}</dd>
+          </div>
+          
+          <div class="flex items-center justify-between border-t border-gray-200 pt-4">
+            <dt class="text-base font-bold text-gray-900">Order Total</dt>
+            <dd class="text-xl font-black text-orange-600">${{ cartService.totalPrice() | number:'1.2-2' }}</dd>
+          </div>
+        </dl>
+
+        <div class="mt-6">
+          <button type="button" class="w-full rounded-xl border border-transparent bg-orange-600 px-4 py-3 text-base font-bold text-white shadow-sm hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-gray-50 transition-colors">
+            Proceed to Checkout
+          </button>
+        </div>
+      </div>
+
+    </div>
+  }
+
+  @if (showDeleteModal) {
+    <div class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity"></div>
+  
+      <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+          
+          <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-100">
+            <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+              <div class="sm:flex sm:items-start">
+                <div class="mx-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                  <ng-icon name="faSolidTrashCan" class="text-base"></ng-icon>
+                </div>
+                <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                  <h3 class="text-lg font-bold leading-6 text-gray-900" id="modal-title">Remove Item</h3>
+                  <div class="mt-2">
+                    <p class="text-sm text-gray-500 font-medium">Are you sure you want to remove this item from your cart? You can always add it back later.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+              <button (click)="confirmDelete()" type="button" class="btn btn-delete">
+                Yes, Remove
+              </button>
+              <button (click)="closeModal()" type="button" class="btn btn-cancel">
+                Cancel
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

@@ -4,6 +4,7 @@ import { ProductService } from '../../services/product';
 import { ToastService } from '../../services/toast';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { faSolidCartShopping } from '@ng-icons/font-awesome/solid';
+import { CartService } from '../../services/cart';
 
 @Component({
   selector: 'app-product', // 🚀 Keeps your original selector
@@ -18,6 +19,8 @@ export class ProductComponent implements OnInit {
   private productService = inject(ProductService);
   private toast = inject(ToastService);
   private cdr = inject(ChangeDetectorRef);
+  private cartService = inject(CartService)
+  
 
   // Data state
   product: any = null;
@@ -95,17 +98,20 @@ export class ProductComponent implements OnInit {
   addToCart() {
     if (!this.product || this.quantity < 1 || this.product.stock < 1) return;
 
-    // For now, we will just log it and show a success toast!
-    // Later, you will pass this to your CartService.
-    const cartItem = {
+    // Package the item using our new CartItem interface shape
+    const itemToAdd = {
       productId: this.product._id,
       productname: this.product.productname,
       price: this.product.price,
       quantity: this.quantity,
-      image: this.selectedImage
+      image: this.selectedImage || (this.product.images && this.product.images[0]) || 'assets/placeholder.png',
+      stock: this.product.stock
     };
 
-    console.log("🛒 Item added to cart:", cartItem);
+    // Send it to the Cart Service
+    this.cartService.addToCart(itemToAdd);
+
+    // Show a success message!
     this.toast.show(`Added ${this.quantity} ${this.product.productname}(s) to your cart!`, 'success');
   }
 }
