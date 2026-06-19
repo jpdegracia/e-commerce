@@ -1,6 +1,7 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CartItem } from '../interface/cart-items';
+import { ToastService } from './toast'; // Ensure this path matches your project structure
 
 @Injectable({
   providedIn: 'root'
@@ -8,6 +9,8 @@ import { CartItem } from '../interface/cart-items';
 export class CartService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:4000/carts'; 
+  private GUEST_CART_EXPIRATION_HOURS = 24;
+  private toast = inject(ToastService);
 
   // The Signal that drives your HTML UI
   private cartItems = signal<CartItem[]>([]);
@@ -125,15 +128,36 @@ export class CartService {
   private loadFromLocal() {
     const localData = localStorage.getItem('guestCart');
     if (localData) {
-      this.cartItems.set(JSON.parse(localData));
+      const parsedData = JSON.parse(localData);
+      
+      // ⏳ Check if the current time has passed the expiration time
+      if (Date.now() > parsedData.expiresAt) {
+        console.warn("Guest cart expired! Clearing local storage.");
+        localStorage.removeItem('guestCart');
+        this.cartItems.set([]);
+      } else {
+        // Still valid! Load the items into the UI
+        this.cartItems.set(parsedData.items);
+      }
     } else {
       this.cartItems.set([]);
     }
   }
 
   private saveToLocal(items: CartItem[]) {
-    this.cartItems.set(items);
-    localStorage.setItem('guestCart', JSON.stringify(items));
+    this.cartItems.set(items); // Update UI immediately
+    
+    // ⏳ Calculate expiration time (Current time + X hours in milliseconds)
+    const expirationMs = this.GUEST_CART_EXPIRATION_HOURS * 60 * 60 * 1000;
+    const expiresAt = Date.now() + expirationMs;
+
+    // Wrap the items and the timestamp together in a single object
+    const payload = {
+      items: items,
+      expiresAt: expiresAt
+    };
+
+    localStorage.setItem('guestCart', JSON.stringify(payload));
   }
 
   // ==========================================
@@ -143,19 +167,43 @@ export class CartService {
     const localData = localStorage.getItem('guestCart');
     if (!localData) return; // Nothing to sync
 
-    const guestItems: CartItem[] = JSON.parse(localData);
+    const parsedData = JSON.parse(localData);
+
+    // ⏳ If they log in, but their guest cart is expired, don't sync it!
+    if (Date.now() > parsedData.expiresAt) {
+      localStorage.removeItem('guestCart');
+      
+      // Notify them their cart was cleared (adjust method name to match your ToastService)
+      if (this.toast.show) {
+        this.toast.show("Your guest cart expired and was cleared.");
+      }
+      return;
+    }
+
+    const guestItems: CartItem[] = parsedData.items;
     
     // Loop through guest items and push to DB
     guestItems.forEach(item => {
       this.http.post<any>(this.apiUrl, { productId: item.productId, quantity: item.quantity }).subscribe({
         next: () => {
-          // Once synced, clear the local cart so we don't double-sync later
-          localStorage.removeItem('guestCart');
-          // Reload the official DB cart
-          this.loadFromDB(); 
+          this.loadFromDB(); // Reload the official DB cart for each successful sync
         },
-        error: (err) => console.error('Failed to sync item', err)
+        error: (err) => {
+          // 🚀 Grab the exact error message from your Express backend
+          const errorMsg = err.error?.message || err.error?.error || "Failed to add an item to your cart.";
+          
+          // Show the toast to the user (adjust method name to match your ToastService)
+          if (this.toast.show) {
+            this.toast.show(`Oops! ${item.productname}: ${errorMsg}`);
+          } else {
+            console.error(`Oops! ${item.productname}: ${errorMsg}`);
+          }
+        }
       });
     });
+
+    // Clean up local storage so we don't sync again later
+    // We clear it here regardless of loop success/failure so they aren't stuck looping a dead cart
+    localStorage.removeItem('guestCart'); 
   }
 }

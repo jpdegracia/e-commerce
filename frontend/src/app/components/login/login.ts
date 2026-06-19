@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { faSolidEye, faSolidEyeSlash } from '@ng-icons/font-awesome/solid';
 import { CommonModule } from '@angular/common';
+import { CartService } from '../../services/cart';
 
 @Component({
   selector: 'app-login',
@@ -16,6 +17,7 @@ import { CommonModule } from '@angular/common';
 })
 export class LoginComponent {
   private authService = inject(AuthService);
+  private cartService = inject(CartService);
   private toast = inject(ToastService);
   private router = inject(Router);
 
@@ -42,6 +44,9 @@ export class LoginComponent {
         if (response.token) {
           localStorage.setItem('token', response.token);
         }
+
+        // 🚀 Tell the cart service to sync their guest items!
+        this.cartService.syncGuestCartToDb();
 
         // Redirect user to the home page or dashboard shell view
         this.router.navigate(['/']); 

@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CartService } from '../../services/cart';
 import { DecimalPipe } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -15,6 +15,7 @@ import { faSolidTrashCan } from '@ng-icons/font-awesome/solid';
 })
 export class CartComponent {
   public cartService = inject(CartService);
+  private router = inject(Router);
 
   // 🚀 Variables to control the delete modal
   showDeleteModal = false;
@@ -46,5 +47,19 @@ export class CartComponent {
   closeModal() {
     this.showDeleteModal = false;
     this.itemToDelete = null;
+  }
+
+  // 🚀 ADD THIS NEW METHOD
+  proceedToCheckout() {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      // If they are a guest, send them to login first!
+      // Once they log in, your syncGuestCartToDb() will run, and they can proceed.
+      this.router.navigate(['/login']); 
+    } else {
+      // If they are logged in, send them straight to the checkout page
+      this.router.navigate(['/checkout']);
+    }
   }
 }

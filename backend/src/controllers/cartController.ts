@@ -24,6 +24,8 @@ export const addItemToCartBasket = async (req: Request, res: Response) => {
 
 export const getCartInfo = async (req: Request, res: Response) => {
     try {
+        console.log("WHOLE REQ.USER:", (req as any).user);
+        console.log("WHOLE REQ.USERID:", (req as any).userId);
         //extracting userId from verifiedToken middleware
         const userId = (req as any).user.id;
 
