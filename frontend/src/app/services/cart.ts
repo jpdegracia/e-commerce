@@ -2,13 +2,14 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CartItem } from '../interface/cart-items';
 import { ToastService } from './toast'; // Ensure this path matches your project structure
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CartService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:4000/carts'; 
+  private apiUrl = `${environment.apiUrl}/carts`; 
   private GUEST_CART_EXPIRATION_HOURS = 24;
   private toast = inject(ToastService);
 
