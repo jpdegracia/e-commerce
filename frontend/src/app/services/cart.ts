@@ -100,6 +100,7 @@ export class CartService {
   private loadFromDB() {
     this.http.get<any>(this.apiUrl).subscribe({
       next: (response) => {
+        console.log("BACKEND SENT THIS CART DATA:", response);
         if (!response.details || !response.details.items) {
           this.cartItems.set([]);
           return;

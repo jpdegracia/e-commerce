@@ -10,7 +10,7 @@ import { ToastService } from '../../services/toast';
   selector: 'app-checkout',
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule, DecimalPipe],
-  templateUrl: './checkout.component.html'
+  templateUrl: './checkout.html'
 })
 export class CheckoutComponent {
   public cartService = inject(CartService);

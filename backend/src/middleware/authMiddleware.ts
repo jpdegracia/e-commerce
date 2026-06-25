@@ -38,50 +38,41 @@ export const verifyToken = (req: AuthRequest, res: Response, next: NextFunction)
 
 
 
-
 export const checkPermission = (requiredPermission: string) => {
-    return async (req: AuthRequest, res: Response, next: NextFunction) => {
+    return (req: Request, res: Response, next: NextFunction) => {
         try {
-            // 1. Ensure verifyToken passed along the user's ID
-            // (Assuming your JWT payload contains the user's id as { id: "..." })
-            if (!req.user || !req.user.id) {
-                return res.status(401).json({ error: "Unauthorized. User identity missing." });
+            const user = (req as any).user;
+
+            // Safety check: Does the user and role exist?
+            if (!user || !user.role || !user.role.permissions) {
+                return res.status(403).json({ error: "Forbidden: No permissions found for this user." });
             }
 
-            // 2. Fetch the user and deeply populate their role and permissions
-            const user = await UserModel.findById(req.user.id).populate({
-                path: "role",
-                populate: {
-                    path: "permissions",
-                    model: "Permission"
-                }
+            const userPermissions = user.role.permissions;
+
+            // 🚀 MAGIC BREADCRUMB: This will force Node to print exactly what is inside [Object]
+            console.log("REVEALED PERMISSIONS:", JSON.stringify(userPermissions, null, 2));
+
+            // 🚀 THE SMART CHECK
+            const hasPermission = userPermissions.some((perm: any) => {
+                // If the permission is just a plain string
+                if (typeof perm === 'string') return perm === requiredPermission;
+                
+                // If it's an object, check the most common Mongoose field names
+                return perm.name === requiredPermission || 
+                       perm.permissionName === requiredPermission || 
+                       perm.action === requiredPermission;
             });
 
-            // 3. Handle edge cases if the user or role no longer exists
-            if (!user) {
-                return res.status(404).json({ error: "User not found in database." });
-            }
-            if (!user.role) {
-                return res.status(403).json({ error: "Access Denied. No role assigned to user." });
+            if (!hasPermission) {
+                return res.status(403).json({ error: `Forbidden: You lack the '${requiredPermission}' permission.` });
             }
 
-            // 4. Extract the array of permissions
-            // We use 'any' here briefly because Mongoose populated fields can be tricky with TypeScript
-            const userRole: any = user.role; 
-            const userPermissions = userRole.permissions.map((p: any) => p.permissionName);
-
-            // 5. Check if the user has the required permission
-            if (!userPermissions.includes(requiredPermission)) {
-                return res.status(403).json({ 
-                    error: `Access Denied. You do not have the '${requiredPermission}' permission.` 
-                });
-            }
-
-            // 6. If they have the permission, let them through!
+            // If they have the permission, let them through!
             next();
 
         } catch (error) {
-            res.status(500).json({ error: "Server error during permission validation." });
+            return res.status(500).json({ error: "Permission check failed." });
         }
     };
 };

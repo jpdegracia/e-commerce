@@ -7,6 +7,7 @@ import { LoginComponent } from './components/login/login';
 import { RegisterComponent } from './components/register/register';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password';
 import { VerifyEmailComponent } from './components/verify-email/verify-email';
+import { CheckoutComponent } from './components/checkout/checkout';
 
 export const routes: Routes = [
   // 🏠 Homepage
@@ -24,6 +25,7 @@ export const routes: Routes = [
 
   //Carts and Orders
   { path: 'cart', component: CartComponent },
+  { path: 'checkout', component: CheckoutComponent },
 
 
   
