@@ -74,14 +74,22 @@ export class AuthService {
       const payload = token.split('.')[1];
       const decoded = JSON.parse(atob(payload));
       
-      // 🚀 THE MAGIC TRACKER: Let's see what is actually inside!
-      // console.log("🔥 Permissions Array:", decoded.role.permissions); 
-      
       return decoded;
     } catch (e) {
       console.error("Error decoding token", e);
       return null;
     }
+  }
+
+  /**
+   * 🚀 NEW: Checks if the currently logged-in user has the 'Admin' role
+   */
+  isAdmin(): boolean {
+    const decodedToken = this.getDecodedToken();
+    if (!decodedToken || !decodedToken.role) return false;
+
+    // Checks if the rolename matches exactly what is in your database
+    return decodedToken.role.rolename === 'Admin';
   }
 
   /**
