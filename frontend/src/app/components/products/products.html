@@ -50,9 +50,19 @@
 
       <div class="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0 flex flex-col justify-between">
         <div>
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-50 text-orange-700 uppercase tracking-wide">
-            {{ product.category?.categoryname || 'Uncategorized' }}
-          </span>
+          <div class="flex flex-wrap gap-1.5">
+            @if (product.category && product.category.length > 0) {
+              @for (cat of product.category; track cat._id) {
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-50 text-orange-700 uppercase tracking-wide border border-orange-100">
+                  {{ cat.categoryname }}
+                </span>
+              }
+            } @else {
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-600 uppercase tracking-wide">
+                Uncategorized
+              </span>
+            }
+          </div>
 
           <h1 class="text-3xl font-extrabold tracking-tight text-slate-800 mt-3 mb-4">
             {{ product.productname }}

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule, DecimalPipe, NgClass } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms'; // 🚀 Import Forms
@@ -25,8 +25,39 @@ export class AdminProductsComponent implements OnInit {
 
   // State Management Signals
   products = signal<any[]>([]);
+  categories = signal<any[]>([]);
   isLoading = signal<boolean>(true);
   errorMessage = signal<string | null>(null);
+
+  // 🚀 1. Filter Tracking Signals
+  searchQuery = signal<string>('');
+  selectedCategoryFilter = signal<string>('');
+
+  // 🚀 2. Reactive Computed Filter Logic
+  filteredProducts = computed(() => {
+    const query = this.searchQuery().toLowerCase().trim();
+    const catFilter = this.selectedCategoryFilter();
+    const allProducts = this.products();
+
+    return allProducts.filter(product => {
+      // Check search match (name or description)
+      const matchesSearch = !query || 
+        product.productname?.toLowerCase().includes(query) || 
+        product.description?.toLowerCase().includes(query);
+
+      // Check category match (handles array structure)
+      let matchesCategory = !catFilter;
+      if (catFilter && product.category) {
+        if (Array.isArray(product.category)) {
+          matchesCategory = product.category.some((c: any) => (c._id || c) === catFilter);
+        } else {
+          matchesCategory = (product.category._id || product.category) === catFilter;
+        }
+      }
+
+      return matchesSearch && matchesCategory;
+    });
+  });
 
   // Delete Modal Signal
   isDeleteModalOpen = signal<boolean>(false);
@@ -44,6 +75,7 @@ export class AdminProductsComponent implements OnInit {
 
   ngOnInit() {
     this.loadProducts();
+    this.loadCategories();
   }
 
   loadProducts() {
@@ -61,6 +93,15 @@ export class AdminProductsComponent implements OnInit {
         this.errorMessage.set("Could not load products. Please check your connection.");
         this.isLoading.set(false);
       }
+    });
+  }
+
+  loadCategories() {
+    this.categoryService.getAllCategories().subscribe({
+      next: (response: any) => {
+        this.categories.set(response.details || response);
+      },
+      error: (err) => console.error("Filter categories error:", err)
     });
   }
 

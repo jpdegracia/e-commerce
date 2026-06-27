@@ -84,11 +84,8 @@
                       {{ product.productname }}
                     </a>
                   </h3>
-                  <p class="mt-1 text-xs text-gray-500 uppercase tracking-wider">
-                    {{ product.category?.categoryname || 'Uncategorized' }}
-                  </p>
                 </div>
-                <p class="text-sm font-black text-orange-600">${{ product.price }}</p>
+                <p class="text-sm font-black text-orange-600">₱{{ product.price }}</p>
               </div>
             </div>
 
