@@ -19,6 +19,7 @@ import { CreateProductComponent } from './admin/create-product/create-product';
 import { UpdateProductComponent } from './admin/update-product/update-product';
 import { CreateUserComponent } from './admin/create-user/create-user';
 import { UpdateUserComponent } from './admin/update-user/update-user';
+import { ViewProductComponent } from './admin/view-product/view-product';
 
 export const routes: Routes = [
   // 🏠 Homepage
@@ -37,10 +38,11 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: AdminDashboardComponent },
       { path: 'products', component: AdminProductsComponent },
-      { path: 'products/create', component: CreateProductComponent },
+      { path: 'products/add', component: CreateProductComponent },
+      { path: 'products/view/:id', component: ViewProductComponent },
       { path: 'products/edit/:id', component: UpdateProductComponent },
       { path: 'users', component: AdminUsersComponent },
-      { path: 'users/create', component: CreateUserComponent },
+      { path: 'users/add', component: CreateUserComponent },
       { path: 'users/edit/:id', component: UpdateUserComponent },
       { path: 'orders', component: AdminOrdersComponent },
     ]

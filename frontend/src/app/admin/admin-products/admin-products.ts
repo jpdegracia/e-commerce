@@ -1,15 +1,18 @@
 import { ChangeDetectorRef, Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { CommonModule, DecimalPipe, NgClass } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms'; // 🚀 Import Forms
 import { ProductService } from '../../services/product';
 import { CategoryService } from '../../services/category';
 import { ToastService } from '../../services/toast'; // Optional: if you want to show success messages
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { faSolidArrowsToEye, faSolidPenToSquare, faSolidPlus, faSolidTrashCan } from '@ng-icons/font-awesome/solid';
 
 @Component({
   selector: 'app-admin-products',
   standalone: true,
-  imports: [CommonModule, DecimalPipe, ReactiveFormsModule, RouterLink], // 🚀 Add ReactiveFormsModule
+  imports: [CommonModule, DecimalPipe, ReactiveFormsModule, RouterLink, NgIcon],
+  providers: [provideIcons({faSolidPenToSquare, faSolidArrowsToEye, faSolidTrashCan, faSolidPlus})], 
   templateUrl: './admin-products.html'
 })
 export class AdminProductsComponent implements OnInit {
@@ -18,17 +21,17 @@ export class AdminProductsComponent implements OnInit {
   private categoryService = inject(CategoryService);
   private toast = inject(ToastService);
   private cdr = inject(ChangeDetectorRef);
-  private fb = inject(FormBuilder); // 🚀 Inject FormBuilder
+  private fb = inject(FormBuilder); 
 
   // State Management Signals
   products = signal<any[]>([]);
   isLoading = signal<boolean>(true);
   errorMessage = signal<string | null>(null);
 
-  // 🚀 Edit Modal Signals
-  isEditModalOpen = signal<boolean>(false);
-  isSubmitting = signal<boolean>(false);
-  selectedProductId = signal<string | null>(null);
+  // Delete Modal Signal
+  isDeleteModalOpen = signal<boolean>(false);
+  productToDeleteId = signal<string | null>(null);
+  isDeleting = signal<boolean>(false);
 
   // 🚀 The Edit Form
   editForm: FormGroup = this.fb.group({
@@ -36,7 +39,7 @@ export class AdminProductsComponent implements OnInit {
     price: [0, [Validators.required, Validators.min(0)]],
     stock: [0, [Validators.required, Validators.min(0)]],
     // Note: If category is an object ID in your DB, this should hold the ID string
-    category: ['', Validators.required] 
+    category: [[], Validators.required] 
   });
 
   ngOnInit() {
@@ -62,74 +65,65 @@ export class AdminProductsComponent implements OnInit {
   }
 
   // ==========================================
-  // 🛠️ EDIT PRODUCT LOGIC
+  // 🛠️ UI HELPER METHODS
   // ==========================================
 
-  editProduct(id: string) {
-    // 1. Find the product in our local array
-    const productToEdit = this.products().find(p => p._id === id);
-    if (!productToEdit) return;
-
-    // 2. Extract category value safely (whether it's an object from populate() or a string)
-    const categoryValue = typeof productToEdit.category === 'object' 
-                          ? productToEdit.category._id 
-                          : productToEdit.category;
-
-    // 3. Pre-fill the form with the product's current data
-    this.editForm.patchValue({
-      productname: productToEdit.productname,
-      price: productToEdit.price,
-      stock: productToEdit.stock,
-      category: categoryValue
-    });
-
-    // 4. Open the modal
-    this.selectedProductId.set(id);
-    this.isEditModalOpen.set(true);
-  }
-
-  closeEditModal() {
-    this.isEditModalOpen.set(false);
-    this.selectedProductId.set(null);
-    this.editForm.reset();
-  }
-
-  saveEdit() {
-    if (this.editForm.invalid || !this.selectedProductId()) {
-      this.editForm.markAllAsTouched();
-      return;
+  getCategoryNames(categoryData: any): string[] {
+    if (!categoryData || categoryData.length === 0) {
+      return ['Uncategorized'];
     }
 
-    this.isSubmitting.set(true);
-    const updatedData = this.editForm.value;
-    const id = this.selectedProductId()!;
+    // If it's an array of objects (Multiple Categories)
+    if (Array.isArray(categoryData)) {
+      return categoryData.map((cat: any) => cat.categoryname || 'Unknown');
+    }
 
-    // 🚀 Send the PUT request to your backend
-    this.productService.updateProduct(id, updatedData).subscribe({
+    // If it's a single populated object
+    if (typeof categoryData === 'object') {
+      return [categoryData.categoryname || 'Unknown'];
+    }
+
+    return ['Uncategorized'];
+  }
+
+
+
+  // ==========================================
+  // 🗑️ DELETE PRODUCT ACTIONS
+  // ==========================================
+
+  // 1. Triggers when clicking the trash icon in the table
+  openDeleteModal(id: string) {
+    this.productToDeleteId.set(id);
+    this.isDeleteModalOpen.set(true);
+  }
+
+  closeDeleteModal() {
+    this.isDeleteModalOpen.set(false);
+    this.productToDeleteId.set(null);
+  }
+
+  // 2. Triggers when confirming inside the modal popup
+  confirmDelete() {
+    const id = this.productToDeleteId();
+    if (!id) return;
+
+    this.isDeleting.set(true);
+
+    this.productService.deleteProduct(id).subscribe({
       next: () => {
-        // Refresh the table data
-        this.loadProducts(); 
-        this.closeEditModal();
-        this.isSubmitting.set(false);
-        // this.toast.showSuccess("Product updated successfully!");
+        // 🚀 Optimistic local update: Filter out the deleted item instantly
+        this.products.update(current => current.filter(p => p._id !== id && p.id !== id));
+        
+        this.toast.show("Product deleted successfully! 🗑️");
+        this.isDeleting.set(false);
+        this.closeDeleteModal();
       },
       error: (err) => {
-        console.error("Failed to update product", err);
-        this.isSubmitting.set(false);
-        // this.toast.showError("Failed to update product.");
+        console.error("Delete failed", err);
+        this.toast.show("Failed to delete product.");
+        this.isDeleting.set(false);
       }
     });
-  }
-
-  // ==========================================
-  // 🛠️ OTHER CRUD ACTIONS (Placeholders)
-  // ==========================================
-
-  openAddModal() {
-    console.log("Open Add Product Modal");
-  }
-
-  deleteProduct(id: string) {
-    console.log("Delete product:", id);
   }
 }

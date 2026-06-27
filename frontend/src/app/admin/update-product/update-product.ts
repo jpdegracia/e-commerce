@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product';
 import { CategoryService } from '../../services/category';
+import { ToastService } from '../../services/toast';
 
 @Component({
   selector: 'app-update-product',
@@ -17,6 +18,7 @@ export class UpdateProductComponent implements OnInit {
   private fb = inject(FormBuilder);
   private productService = inject(ProductService);
   private categoryService = inject(CategoryService);
+  private toast = inject(ToastService);
 
   productId = signal<string | null>(null);
   isLoading = signal<boolean>(true);
@@ -176,11 +178,13 @@ export class UpdateProductComponent implements OnInit {
     this.productService.updateProduct(id, updatePayload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
+        this.toast.show("Product updated successfully!");
         this.router.navigate(['/admin/products']);
       },
       error: (err) => {
         console.error("Update failed", err);
         this.isSubmitting.set(false);
+        this.toast.show("Failed to update product. Please try again.")
       }
     });
   }

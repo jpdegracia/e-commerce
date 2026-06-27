@@ -1,0 +1,123 @@
+<div class="max-w-5xl mx-auto space-y-6 pb-12">
+  
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div class="flex items-center space-x-4">
+      <a routerLink="/admin/products" 
+         class="p-2 text-gray-400 hover:text-gray-900 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      </a>
+      <div>
+        <h2 class="text-2xl font-extrabold text-gray-900">Product Specification</h2>
+        <p class="text-sm text-gray-500 mt-1">Read-only structural view of inventory properties.</p>
+      </div>
+    </div>
+
+    @if (!isLoading() && product()) {
+      <a [routerLink]="['/admin/products/edit', product()._id || product().id]"
+         class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-bold text-white bg-slate-900 rounded-xl hover:bg-slate-800 transition-colors shadow-sm">
+        <ng-icon name="faSolidPenToSquare" size="16" class="mr-2"></ng-icon>
+        Modify Details
+      </a>
+    }
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex justify-center items-center py-24 bg-white rounded-3xl border border-gray-100 shadow-sm">
+      <svg class="animate-spin h-10 w-10 text-orange-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+    </div>
+  }
+
+  @if (!isLoading() && product()) {
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm">
+      
+      <div class="space-y-4">
+        <div class="w-full aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-200">
+          <img [src]="product().images?.[selectedImageIndex()] || 'https://placehold.co/400x400/png?text=No+Image'" 
+               onerror="this.src='https://placehold.co/400x400/png?text=Broken+Link'"
+               class="w-full h-full object-cover transition-all duration-300">
+        </div>
+
+        @if (product().images && product().images.length > 0) {
+          <div class="flex flex-wrap gap-2">
+            @for (img of product().images; track $index) {
+              <button type="button" (click)="setPreviewImage($index)"
+                      [class.border-orange-500]="selectedImageIndex() === $index"
+                      [class.ring-2]="selectedImageIndex() === $index"
+                      [class.ring-orange-100]="selectedImageIndex() === $index"
+                      class="w-16 h-16 rounded-xl overflow-hidden bg-gray-50 border border-gray-200 focus:outline-none transition-all hover:opacity-80">
+                <img [src]="img" onerror="this.src='https://placehold.co/150x150/png'" class="w-full h-full object-cover">
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="flex flex-col justify-between space-y-6">
+        
+        <div class="space-y-4">
+          <div class="flex flex-wrap gap-1.5">
+            @if (product().category) {
+              @if (product().category.length >= 0) {
+                @for (cat of product().category; track cat._id) {
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-800">
+                    {{ cat.categoryname || 'Unspecified Tag' }}
+                  </span>
+                }
+              } @else {
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-800">
+                  {{ product().category.categoryname || 'Unspecified Tag' }}
+                </span>
+              }
+            } @else {
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700">Uncategorized</span>
+            }
+          </div>
+
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">{{ product().productname }}</h1>
+          
+          <div class="text-2xl font-black text-orange-600">
+            ₱ {{ product().price | number:'1.2-2' }}
+          </div>
+
+          <hr class="border-gray-100">
+
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400">Description</h4>
+            <p class="mt-2 text-gray-600 leading-relaxed text-sm sm:text-base whitespace-pre-line">
+              {{ product().description || 'No description available for this product item.' }}
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100 flex items-center justify-between">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-gray-400 block">Inventory Metrics</span>
+            <span class="text-sm font-semibold text-gray-700 mt-1 inline-block">
+              Quantity metrics registered: <strong class="text-gray-900">{{ product().stock }} units</strong>
+            </span>
+          </div>
+
+          <div>
+            @if (product().stock > 10) {
+              <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold bg-green-100 text-green-800 border border-green-200">
+                In Stock
+              </span>
+            } @else if (product().stock > 0 && product().stock <= 10) {
+              <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold bg-yellow-100 text-yellow-800 border border-yellow-200">
+                Low Stock Warning
+              </span>
+            } @else {
+              <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold bg-red-100 text-red-800 border border-red-200">
+                Fulfillment Halted
+              </span>
+            }
+          </div>
+        </div>
+
+      </div>
+    </div>
+  }
+</div>

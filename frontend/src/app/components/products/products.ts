@@ -19,7 +19,7 @@ export class ProductComponent implements OnInit {
   private productService = inject(ProductService);
   private toast = inject(ToastService);
   private cdr = inject(ChangeDetectorRef);
-  private cartService = inject(CartService)
+  private cartService = inject(CartService);
   
 
   // Data state

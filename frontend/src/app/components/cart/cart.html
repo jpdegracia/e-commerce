@@ -43,7 +43,7 @@
                 </td>
 
                 <td class="py-6 text-center">
-                  <p class="text-sm font-bold text-gray-600">PHP {{ item.price | number:'1.2-2' }}</p>
+                  <p class="text-sm font-bold text-gray-600">₱ {{ item.price | number:'1.2-2' }}</p>
                 </td>
 
                 <td class="py-6">
@@ -68,7 +68,7 @@
                 </td>
 
                 <td class="py-6 text-right">
-                  <p class="text-base font-black text-orange-600">PHP {{ (item.price * item.quantity) | number:'1.2-2' }}</p>
+                  <p class="text-base font-black text-orange-600">₱ {{ (item.price * item.quantity) | number:'1.2-2' }}</p>
                 </td>
 
               </tr>
@@ -83,12 +83,12 @@
         <dl class="mt-6 space-y-4">
           <div class="flex items-center justify-between">
             <dt class="text-sm text-gray-600">Subtotal ({{ cartService.totalItems() }} items)</dt>
-            <dd class="text-sm font-medium text-gray-900">PHP {{ cartService.totalPrice() | number:'1.2-2' }}</dd>
+            <dd class="text-sm font-medium text-gray-900">₱ {{ cartService.totalPrice() | number:'1.2-2' }}</dd>
           </div>
           
           <div class="flex items-center justify-between border-t border-gray-200 pt-4">
             <dt class="text-base font-bold text-gray-900">Order Total</dt>
-            <dd class="text-xl font-black text-orange-600">PHP {{ cartService.totalPrice() | number:'1.2-2' }}</dd>
+            <dd class="text-xl font-black text-orange-600">₱ {{ cartService.totalPrice() | number:'1.2-2' }}</dd>
           </div>
         </dl>
 

@@ -32,6 +32,27 @@
   .btn-quantity {
     @apply px-3 h-full bg-gray-200 text-gray-600 hover:bg-gray-100 hover:text-orange-600 border-l border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-lg font-bold cursor-pointer
   }
+  .btn-submit {
+    @apply px-6 py-3 rounded-xl border border-transparent bg-orange-600 text-sm font-bold text-white shadow-sm hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center cursor-pointer
+  }
+  .btn-cancel-product {
+    @apply px-6 py-3 rounded-xl border border-gray-300 bg-white text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-colors cursor-pointer
+  }
+  .btn-delete-product {
+    @apply px-6 py-3 rounded-xl border border-gray-300 bg-red-500 text-sm font-bold text-white shadow-sm hover:text-slate-200 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-colors cursor-pointer
+  }
+  .btn-add-image {
+    @apply px-6 py-3 rounded-xl border border-transparent bg-slate-900 text-sm font-bold text-white shadow-sm hover:bg-slate-800 transition-colors cursor-pointer
+  }
+  .btn-view-icon {
+    @apply text-slate-300 hover:text-blue-600 transition-colors cursor-pointer
+  }
+  .btn-edit-icon {
+    @apply text-slate-300 hover:text-purple-600 transition-colors cursor-pointer
+  }
+  .btn-delete-icon {
+    @apply text-slate-300 hover:text-red-500 transition-colors cursor-pointer
+  }
 
 
   
