@@ -2,6 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { IProduct } from '../interface/product';
+
 
 @Injectable({
   providedIn: 'root'
@@ -27,5 +29,9 @@ export class ProductService {
 
   getProductByID(productId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/${productId}`)
+  }
+
+  updateProduct(productId: string, updateData: Partial<IProduct>): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${productId}`, updateData)
   }
 }
