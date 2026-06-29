@@ -1,1 +1,118 @@
-<p>view-role works!</p>
+<div class="max-w-4xl mx-auto space-y-6 pb-12">
+  
+  <div class="flex items-center justify-between">
+    <div class="flex items-center space-x-4">
+      <a routerLink="/admin/roles" 
+         class="p-2 text-gray-400 hover:text-gray-900 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+      </a>
+      <div>
+        <h2 class="text-2xl font-extrabold text-gray-900">Role Details</h2>
+        <p class="text-sm text-gray-500 mt-1">Review access clearances and identity parameters.</p>
+      </div>
+    </div>
+
+    @if (!isLoading() && role()) {
+      <a [routerLink]="['/admin/roles/edit', role()?._id]" 
+         class="btn-modify">
+        <ng-icon name="faSolidPenToSquare" size="18"></ng-icon>
+        Modify Role
+      </a>
+    }
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex justify-center items-center py-24 bg-white rounded-3xl border border-gray-100 shadow-sm">
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-600"></div>
+    </div>
+  }
+
+  @if (!isLoading() && role()) {
+    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+      
+      <div class="h-28 bg-slate-900 relative">
+        <div class="absolute -bottom-8 left-8">
+          <div class="w-16 h-16 bg-orange-600 text-white font-black rounded-xl flex items-center justify-center text-2xl shadow-md border-4 border-white uppercase select-none">
+            {{ role()?.rolename?.substring(0, 1) }}
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-12 p-6 sm:p-8 space-y-8">
+        
+        <div class="border-b border-gray-100 pb-6">
+          <h1 class="text-2xl font-black text-gray-900">{{ role()?.rolename }}</h1>
+          <p class="text-sm font-medium text-gray-400 mt-0.5">Database ID Reference</p>
+        </div>
+
+        <div class="bg-gray-50/60 p-5 rounded-2xl border border-gray-100 space-y-1.5">
+          <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Operational Scope & Description</span>
+          <p class="text-sm font-medium text-gray-800 leading-relaxed">{{ role()?.description }}</p>
+        </div>
+
+        <div class="space-y-4 pt-2">
+          <div>
+            <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide">Granted System Permissions</h3>
+            <p class="text-xs text-gray-500 mt-0.5">The specific operations and modules this role is authorized to access.</p>
+          </div>
+
+          @if (permissionGroups().length === 0) {
+            <div class="p-4 rounded-xl border border-amber-200 bg-amber-50 text-sm font-medium text-amber-700 text-center">
+              No permissions are currently assigned to this role.
+            </div>
+          }
+
+          <div class="space-y-3">
+            @for (group of permissionGroups(); track group.groupName) {
+              
+              <div class="border border-gray-200 rounded-2xl bg-white overflow-hidden shadow-sm transition-all">
+                
+                <button type="button" 
+                        (click)="toggleAccordion(group.groupName)"
+                        class="w-full flex items-center justify-between px-5 py-4 bg-gray-50 hover:bg-gray-100/80 transition-colors cursor-pointer select-none">
+                  
+                  <div class="flex items-center gap-3">
+                    <span class="w-2.5 h-2.5 rounded-full bg-green-500 shadow-sm"></span>
+                    <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider">{{ group.groupName }}</h4>
+                    <span class="px-2 py-0.5 rounded-md bg-white border border-gray-200 text-[10px] font-bold text-gray-500">
+                      {{ group.permissions.length }} granted
+                    </span>
+                  </div>
+
+                  <svg class="w-5 h-5 text-gray-400 transform transition-transform duration-300"
+                       [class.rotate-180]="group.isOpen"
+                       fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </button>
+
+                @if (group.isOpen) {
+                  <div class="p-5 border-t border-gray-100 bg-white animate-fadeIn">
+                    <div class="flex flex-wrap gap-2.5">
+                      
+                      @for (perm of group.permissions; track perm._id) {
+                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-orange-100 bg-orange-50/50">
+                          <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                          </svg>
+                          <div class="flex flex-col">
+                            <span class="text-[11px] font-bold text-gray-900 uppercase tracking-wide">{{ perm.permissionName }}</span>
+                          </div>
+                        </div>
+                      }
+
+                    </div>
+                  </div>
+                }
+
+              </div>
+            }
+          </div>
+        </div>
+
+      </div>
+    </div>
+  }
+</div>

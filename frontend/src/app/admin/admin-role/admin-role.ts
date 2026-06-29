@@ -5,13 +5,13 @@ import { RoleService } from '../../services/role';
 import { ToastService } from '../../services/toast';
 import { IRole } from '../../interface/role'; // Adjust path as needed
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { faSolidMagnifyingGlass, faSolidPlus, faSolidTrashCan, faSolidUser, faSolidUserCheck, faSolidUserSlash, faSolidPenToSquare } from '@ng-icons/font-awesome/solid';
+import { faSolidMagnifyingGlass, faSolidPlus, faSolidTrashCan, faSolidUser, faSolidUserCheck, faSolidUserSlash, faSolidPenToSquare, faSolidArrowsToEye } from '@ng-icons/font-awesome/solid';
 
 @Component({
   selector: 'app-admin-role',
   standalone: true,
   imports: [CommonModule, RouterLink, NgIcon],
-  providers: [provideIcons({ faSolidMagnifyingGlass, faSolidTrashCan, faSolidUserCheck, faSolidUserSlash, faSolidPenToSquare, faSolidPlus, faSolidUser })],
+  providers: [provideIcons({ faSolidMagnifyingGlass, faSolidTrashCan, faSolidUserCheck, faSolidUserSlash, faSolidPenToSquare, faSolidPlus, faSolidUser, faSolidArrowsToEye })],
   templateUrl: './admin-role.html'
 })
 export class AdminRoleComponent implements OnInit {

@@ -63,8 +63,8 @@ export const routes: Routes = [
       // roles
       { path: 'roles', component: AdminRoleComponent },
       { path: 'roles/add', component: CreateRoleComponent },
-      { path: 'roles/view/:id', component: AdminRoleComponent },
-      { path: 'roles/edit/:id', component: ViewRoleComponent },
+      { path: 'roles/view/:id', component: ViewRoleComponent },
+      { path: 'roles/edit/:id', component: UpdateRoleComponent },
 
       // permissions
       { path: 'permissions', component: AdminPermissionComponent },

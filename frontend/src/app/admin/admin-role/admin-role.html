@@ -84,6 +84,11 @@
 
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div class="flex items-center justify-end gap-3">
+
+                        <a [routerLink]="['/admin/roles/view', role._id]" 
+                        class="text-gray-400 hover:text-orange-600 transition-colors" title="Modify Details">
+                        <ng-icon name="faSolidArrowsToEye" class="text-lg"></ng-icon>
+                        </a>
                         
                         <a [routerLink]="['/admin/roles/edit', role._id]" 
                         class="text-gray-400 hover:text-orange-600 transition-colors" title="Modify Details">

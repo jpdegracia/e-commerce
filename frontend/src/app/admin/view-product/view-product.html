@@ -14,7 +14,7 @@
 
     @if (!isLoading() && product()) {
       <a [routerLink]="['/admin/products/edit', product()._id || product().id]"
-         class="inline-flex items-center justify-center px-4 py-2.5 text-sm font-bold text-white bg-slate-900 rounded-xl hover:bg-slate-800 transition-colors shadow-sm">
+         class="btn-modify">
         <ng-icon name="faSolidPenToSquare" size="16" class="mr-2"></ng-icon>
         Modify Details
       </a>

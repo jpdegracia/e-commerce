@@ -53,6 +53,9 @@
   .btn-delete-icon {
     @apply text-slate-300 hover:text-red-500 transition-colors cursor-pointer
   }
+  .btn-modify {
+    @apply inline-flex items-center justify-center px-4 py-2.5 text-sm font-bold text-white bg-slate-900 rounded-xl hover:bg-slate-800 transition-colors shadow-sm
+  }
 
 
   
