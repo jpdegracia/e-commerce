@@ -24,6 +24,9 @@ import { SetupAccountComponent } from './admin/setup-account/setup-account';
 import { AdminRoleComponent } from './admin/admin-role/admin-role';
 import { AdminPermissionComponent } from './admin/admin-permission/admin-permission';
 import { ViewUserComponent } from './admin/view-user/view-user';
+import { CreateRoleComponent } from './admin/create-role/create-role';
+import { UpdateRoleComponent } from './admin/update-role/update-role';
+import { ViewRoleComponent } from './admin/view-role/view-role';
 
 export const routes: Routes = [
   // 🏠 Homepage
@@ -59,6 +62,9 @@ export const routes: Routes = [
 
       // roles
       { path: 'roles', component: AdminRoleComponent },
+      { path: 'roles/add', component: CreateRoleComponent },
+      { path: 'roles/view/:id', component: AdminRoleComponent },
+      { path: 'roles/edit/:id', component: ViewRoleComponent },
 
       // permissions
       { path: 'permissions', component: AdminPermissionComponent },
