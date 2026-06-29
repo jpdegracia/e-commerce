@@ -1,1 +1,111 @@
-<p>admin-role works!</p>
+<div class="max-w-7xl mx-auto space-y-6 pb-12">
+  
+  <div class="flex items-center justify-between bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+    <div>
+      <h2 class="text-2xl font-extrabold text-gray-900">Authorization Roles</h2>
+      <p class="text-sm text-gray-500 mt-1">Manage system security clearances, groups, and permissions matrices.</p>
+    </div>
+    
+    <a routerLink="/admin/roles/add" 
+       class="btn-submit gap-2">
+      <ng-icon name="faSolidPlus" size="18"></ng-icon>
+      Create New Role
+    </a>
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex justify-center items-center py-24 bg-white rounded-3xl border border-gray-100 shadow-sm">
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-600"></div>
+    </div>
+  }
+
+  @if (!isLoading()) {
+    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          
+          <thead class="bg-gray-50/50">
+            <tr>
+              <th scope="col" class="px-6 py-4 text-left text-[11px] font-black text-gray-400 uppercase tracking-wider">Role Identity</th>
+              <th scope="col" class="px-6 py-4 text-left text-[11px] font-black text-gray-400 uppercase tracking-wider">Description Scope</th>
+              <th scope="col" class="px-6 py-4 text-left text-[11px] font-black text-gray-400 uppercase tracking-wider">Assigned Permissions</th>
+              <th scope="col" class="px-6 py-4 text-right text-[11px] font-black text-gray-400 uppercase tracking-wider">Operations</th>
+            </tr>
+          </thead>
+
+          <tbody class="bg-white divide-y divide-gray-100">
+            
+            @if (roles().length === 0) {
+              <tr>
+                <td colspan="4" class="px-6 py-12 text-center text-gray-500 text-sm font-medium">
+                  No authorization roles found in the active ledger.
+                </td>
+              </tr>
+            }
+
+            @for (role of roles(); track role._id) {
+              <tr class="hover:bg-gray-50/70 transition-colors">
+                
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-slate-100 text-slate-700 font-extrabold rounded-lg flex items-center justify-center text-xs uppercase shadow-inner">
+                      {{ role.rolename.substring(0, 1) }}
+                    </div>
+                    <div>
+                      <div class="text-sm font-bold text-gray-900">{{ role.rolename }}</div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="px-6 py-4">
+                  <div class="text-xs text-gray-600 font-medium max-w-xs truncate">{{ role.description }}</div>
+                </td>
+
+                <td class="px-6 py-4">
+                    <div class="flex items-center flex-wrap gap-1.5">
+                        
+                        @for (perm of role.permissions | slice:0:2; track perm._id) {
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-100 uppercase tracking-wide">
+                            {{ perm.permissionName }}
+                        </span>
+                        }
+                        
+                        @if (role.permissions && role.permissions.length > 2) {
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-600 border border-gray-200">
+                            +{{ role.permissions.length - 2 }} more
+                        </span>
+                        }
+                        
+                        @if (!role.permissions || role.permissions.length === 0) {
+                        <span class="text-xs text-gray-400 italic">No access parameters</span>
+                        }
+                    </div>
+                </td>
+
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <div class="flex items-center justify-end gap-2">
+                    
+                    <a [routerLink]="['/admin/roles/edit', role._id]" 
+                       class="p-1.5 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors" title="Modify Details">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                      </svg>
+                    </a>
+
+                    <button (click)="deleteRoleTrigger(role._id)" 
+                            class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Wipe Record">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                    </button>
+
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>
