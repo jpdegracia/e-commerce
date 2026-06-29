@@ -9,6 +9,7 @@ import {
   faSolidMagnifyingGlass, 
   faSolidPlus, 
   faSolidTrashCan, 
+  faSolidUser, 
   faSolidUserCheck, 
   faSolidUserPen, 
   faSolidUserSlash,
@@ -19,7 +20,7 @@ import {
   selector: 'app-admin-users',
   standalone: true,
   imports: [CommonModule, FormsModule, NgIcon, RouterLink],
-  providers: [provideIcons({ faSolidMagnifyingGlass, faSolidTrashCan, faSolidUserCheck, faSolidUserSlash, faSolidUserPen, faSolidPlus })],
+  providers: [provideIcons({ faSolidMagnifyingGlass, faSolidTrashCan, faSolidUserCheck, faSolidUserSlash, faSolidUserPen, faSolidPlus, faSolidUser })],
   templateUrl: './admin-users.html'
 })
 export class AdminUsersComponent implements OnInit {

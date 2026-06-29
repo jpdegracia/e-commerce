@@ -96,8 +96,12 @@
                 </td>
 
                 <td class="px-6 py-4 text-right whitespace-nowrap space-x-4">
+
+                  <button [routerLink]="['/admin/users/view', user._id]" class="text-slate-400 hover:text-blue-600 transition-colors" title="View User">
+                    <ng-icon name="faSolidUser" size="18"></ng-icon>
+                  </button>
                   
-                  <button [routerLink]="['/admin/users/edit', user._id]" class="text-slate-400 hover:text-blue-600 transition-colors" title="Modify User Properties">
+                  <button [routerLink]="['/admin/users/edit', user._id]" class="text-slate-400 hover:text-blue-600 transition-colors" title="Modify User">
                     <ng-icon name="faSolidUserPen" size="18"></ng-icon>
                   </button>
 

@@ -21,6 +21,9 @@ import { CreateUserComponent } from './admin/create-user/create-user';
 import { UpdateUserComponent } from './admin/update-user/update-user';
 import { ViewProductComponent } from './admin/view-product/view-product';
 import { SetupAccountComponent } from './admin/setup-account/setup-account';
+import { AdminRoleComponent } from './admin/admin-role/admin-role';
+import { AdminPermissionComponent } from './admin/admin-permission/admin-permission';
+import { ViewUserComponent } from './admin/view-user/view-user';
 
 export const routes: Routes = [
   // 🏠 Homepage
@@ -40,13 +43,27 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: AdminDashboardComponent },
+
+      // products
       { path: 'products', component: AdminProductsComponent },
       { path: 'products/add', component: CreateProductComponent },
       { path: 'products/view/:id', component: ViewProductComponent },
       { path: 'products/edit/:id', component: UpdateProductComponent },
+
+      // users
       { path: 'users', component: AdminUsersComponent },
       { path: 'users/add', component: CreateUserComponent },
+      { path: 'users/view/:id', component: ViewUserComponent },
       { path: 'users/edit/:id', component: UpdateUserComponent },
+
+
+      // roles
+      { path: 'roles', component: AdminRoleComponent },
+
+      // permissions
+      { path: 'permissions', component: AdminPermissionComponent },
+      
+      // orders
       { path: 'orders', component: AdminOrdersComponent },
     ]
   },
