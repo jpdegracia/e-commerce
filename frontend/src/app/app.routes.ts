@@ -20,6 +20,7 @@ import { UpdateProductComponent } from './admin/update-product/update-product';
 import { CreateUserComponent } from './admin/create-user/create-user';
 import { UpdateUserComponent } from './admin/update-user/update-user';
 import { ViewProductComponent } from './admin/view-product/view-product';
+import { SetupAccountComponent } from './admin/setup-account/setup-account';
 
 export const routes: Routes = [
   // 🏠 Homepage
@@ -30,6 +31,8 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'verify-email', component: VerifyEmailComponent },
+  { path: 'setup-account', component: SetupAccountComponent },
+
 
   {
     path: 'admin',

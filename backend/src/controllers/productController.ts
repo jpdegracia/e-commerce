@@ -83,6 +83,7 @@ export const getProductsByCategory = async (req: Request, res: Response) => {
 export const updateProduct = async (req: Request, res: Response) => {
     try {
         const id = req.params.id as string;
+        // console.log("🔥 INCOMING UPDATE BODY:", req.body);
         const {productname, description, price, stock, images, category} = req.body;
 
         const updatedProduct = await productServices.updateProduct(id, req.body)

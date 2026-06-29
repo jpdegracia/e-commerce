@@ -28,14 +28,14 @@ export const createUser = async (req: Request, res: Response) => {
 
         // 3. Create the verification URL pointing flawlessly to your Angular route
         const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:4200";
-        const verifyUrl = `${CLIENT_URL}/verify-email?token=${verificationToken}`;
+        const setupUrl = `${CLIENT_URL}/setup-account?token=${verificationToken}`;
 
         // 4. Tie your HTML template here using the correct service properties
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: email,
             subject: "Account Created! Please Verify Your Email Address",
-            html: getEmailVerificationTemplate(cleanUser.fullname, verifyUrl)
+            html: getEmailVerificationTemplate(cleanUser.fullname, setupUrl)
         };
 
         // 5. Fire off the verification email to the user the admin just provisioned

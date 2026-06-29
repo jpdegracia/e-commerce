@@ -1,45 +1,46 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { ToastService } from '../../services/toast';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-verify-email',
   standalone: true,
-  template: `
-    <div class="flex min-h-[60vh] flex-col items-center justify-center text-center p-6">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-800 mb-4"></div>
-      <h2 class="text-2xl font-bold text-slate-800">Verifying Your Account</h2>
-      <p class="text-gray-600 mt-2">Please wait while we finalize your registration with Haven's Store...</p>
-    </div>
-  `
+  imports: [CommonModule, RouterLink],
+  templateUrl: './verify-email.html'
 })
 export class VerifyEmailComponent implements OnInit {
   private route = inject(ActivatedRoute);
-  private http = inject(HttpClient);
-  private toast = inject(ToastService);
-  private router = inject(Router);
+  private authService = inject(AuthService);
+
+  // Status tracking signals
+  isLoading = signal<boolean>(true);
+  isSuccess = signal<boolean>(false);
+  errorMessage = signal<string>('');
 
   ngOnInit() {
-    // Read the token parameter from the URL bar string
+    // Grab the '?token=' query parameter from the URL
     const token = this.route.snapshot.queryParamMap.get('token');
 
-    if (!token) {
-      this.toast.show("Invalid or missing verification link.", "error");
-      this.router.navigate(['/register']);
-      return;
+    if (token) {
+      this.executeVerification(token);
+    } else {
+      this.isLoading.set(false);
+      this.errorMessage.set("No verification token found in the URL. Please check your email link.");
     }
+  }
 
-    // Pass the token to your backend via a background POST request
-    this.http.post('http://localhost:4000/auth/verify-email', { token }).subscribe({
-      next: (res: any) => {
-        this.toast.show("Account activated successfully! Welcome to Haven's Store.", "success");
-        this.router.navigate(['/login']);
+  executeVerification(token: string) {
+    this.authService.verifyEmail(token).subscribe({
+      next: (response) => {
+        this.isLoading.set(false);
+        this.isSuccess.set(true);
       },
-      error: (err: any) => {
-        const errorMsg = err.error?.message || "Verification failed.";
-        this.toast.show(errorMsg, "error");
-        this.router.navigate(['/register']);
+      error: (err) => {
+        console.error("Verification failed:", err);
+        this.isLoading.set(false);
+        // Display backend error message (e.g., "Invalid or expired token")
+        this.errorMessage.set(err.error?.error || "Verification failed. The link may be expired.");
       }
     });
   }

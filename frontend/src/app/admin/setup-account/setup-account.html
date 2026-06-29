@@ -1,0 +1,115 @@
+<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-md">
+    
+    <div class="bg-white py-10 px-8 shadow-sm sm:rounded-3xl border border-gray-100 relative overflow-hidden">
+      
+      @if (!token() && errorMessage()) {
+        <div class="text-center space-y-4">
+          <div class="mx-auto w-16 h-16 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </div>
+          <h2 class="text-2xl font-bold text-gray-900">Invalid Invitation Link</h2>
+          <p class="text-gray-500 text-sm">{{ errorMessage() }}</p>
+        </div>
+      }
+
+      @if (token() && !isSuccess()) {
+        <div class="space-y-6">
+          <div class="text-center">
+            <h2 class="text-2xl font-bold text-gray-900">Secure Your Account</h2>
+            <p class="text-gray-500 mt-2 text-sm">An administrator has provisioned an account for you. Please set a password to finalize activation.</p>
+          </div>
+
+          @if (errorMessage()) {
+            <div class="p-3 bg-red-50 text-red-700 text-xs rounded-xl border border-red-100 text-center font-semibold">
+              {{ errorMessage() }}
+            </div>
+          }
+
+          <form (ngSubmit)="onSubmitPasswordSetup()" class="space-y-5">
+            
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold uppercase tracking-wider text-gray-400">Choose Permanent Password</label>
+                <div class="relative rounded-xl shadow-sm">
+                <input [type]="showPassword() ? 'text' : 'password'" 
+                        [ngModel]="newPassword()" 
+                        (ngModelChange)="newPassword.set($any($event))" 
+                        name="newPassword" required
+                        placeholder="••••••••"
+                        class="block w-full rounded-xl border border-gray-300 pl-4 pr-12 py-3 text-sm focus:border-orange-500 focus:ring-orange-500 bg-gray-50/50 transition-all font-medium text-gray-900">
+                
+                <button type="button" 
+                        (click)="showPassword.set(!showPassword())"
+                        class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors">
+                    <ng-icon [name]="showPassword() ? 'faSolidEyeSlash' : 'faSolidEye'" class="text-lg"></ng-icon>
+                </button>
+                </div>
+            </div>
+
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold uppercase tracking-wider text-gray-400">Re-type Password</label>
+                <div class="relative rounded-xl shadow-sm">
+                <input [type]="showConfirmPassword() ? 'text' : 'password'" 
+                        [ngModel]="confirmPassword()" 
+                        (ngModelChange)="confirmPassword.set($any($event))" 
+                        name="confirmPassword" required
+                        placeholder="••••••••"
+                        class="block w-full rounded-xl border border-gray-300 pl-4 pr-12 py-3 text-sm focus:border-orange-500 focus:ring-orange-500 bg-gray-50/50 transition-all font-medium text-gray-900">
+                
+                <button type="button" 
+                        (click)="showConfirmPassword.set(!showConfirmPassword())"
+                        class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors">
+                    <ng-icon [name]="showConfirmPassword() ? 'faSolidEyeSlash' : 'faSolidEye'" class="text-lg"></ng-icon>
+                </button>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-100 text-[11px] text-gray-500 space-y-1 font-medium">
+              <span class="block font-bold text-gray-700 mb-1 uppercase tracking-wider">Security rules enforced:</span>
+              <div class="flex items-center gap-1.5" [class.text-green-600]="newPassword().length >= 8">
+                <span>• At least 8 alpha-numeric characters long</span>
+              </div>
+              <div class="flex items-center gap-1.5" [class.text-green-600]="/[A-Z]/.test(newPassword())">
+                <span>• Contains minimum 1 uppercase letter (A-Z)</span>
+              </div>
+              <div class="flex items-center gap-1.5" [class.text-green-600]="/[!@#$%^&*(),.?\':{}|<> ]/.test(newPassword())">
+                <span>• Contains minimum 1 special symbol modifier (#, !, ?, etc)</span>
+              </div>
+            </div>
+
+            <button type="submit" 
+                    [disabled]="isSubmitting() || !newPassword() || !confirmPassword()"
+                    class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-orange-600 hover:bg-orange-500 transition-colors disabled:opacity-50">
+              @if (isSubmitting()) {
+                Configuring Storage Security...
+              } @else {
+                Activate My Profile
+              }
+            </button>
+          </form>
+        </div>
+      }
+
+      @if (isSuccess()) {
+        <div class="text-center space-y-6 animate-fadeIn">
+          <div class="mx-auto w-16 h-16 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900">Credential Sync Success!</h2>
+            <p class="text-gray-500 mt-2 text-sm">Your administrative profile signature has been updated. You can now access your account safely using your new credentials.</p>
+          </div>
+          <a routerLink="/login" 
+             class="inline-block w-full py-3 px-4 rounded-xl shadow-sm text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 transition-colors">
+            Log In to Store Front
+          </a>
+        </div>
+      }
+
+    </div>
+  </div>
+</div>

@@ -6,7 +6,7 @@ interface IProduct {
     price: number,
     stock: number,
     images: string[],
-    category: mongoose.Types.ObjectId
+    category: [mongoose.Types.ObjectId]
 
 }
 

@@ -107,6 +107,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
     }
 };
 
+
 // 5. FORGOT PASSWORD
 export const forgotPassword = async (req: Request, res: Response) => {
     try {
@@ -176,3 +177,36 @@ export const updateUser = async (req: Request, res: Response) => {
         }
     }
 };
+
+// 8. SET UP ACCOUNT BY ADMIN
+export const setupAccount = async (req: Request, res: Response) => {
+    try {
+        const { token, password } = req.body;
+
+        if (!token) {
+            return res.status(400).json({error: "Verification Token required."});
+        }
+        if (!password) {
+            return res.status(400).json({error: "A new password is required to activate your account"});
+        }
+
+        const isLongEnough = password.length >= 8; 
+        const hasUppercase = /[A-Z]/.test(password);
+        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+        if (!isLongEnough || !hasUppercase || !hasSpecialChar) {
+            return res.status(400).json({ 
+                error: "Password must be at least 8 characters long, contain 1 uppercase letter and 1 special character." 
+            });
+        }
+
+        const result = await authService.setupAccount(token as string, password);
+        res.status(200).json(result);
+    } catch (error) {
+        if (error instanceof Error) {
+            res.status(400).json({ message: "Error in updating password", error: error.message})
+        } else {
+            res.status(500).json({ message: "Server Error", error})
+        }
+    }
+}

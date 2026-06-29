@@ -51,7 +51,7 @@ export const checkPermission = (requiredPermission: string) => {
             const userPermissions = user.role.permissions;
 
             // 🚀 MAGIC BREADCRUMB: This will force Node to print exactly what is inside [Object]
-            console.log("REVEALED PERMISSIONS:", JSON.stringify(userPermissions, null, 2));
+            // console.log("REVEALED PERMISSIONS:", JSON.stringify(userPermissions, null, 2));
 
             // 🚀 THE SMART CHECK
             const hasPermission = userPermissions.some((perm: any) => {

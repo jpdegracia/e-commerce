@@ -144,6 +144,26 @@ class AuthService {
         return { message: "Email verified successfully! You can now log in." };
     }
 
+    //verify email set up account by admin
+    public async setupAccount(token: string, newPassword?: string) {
+    const user = await UserModel.findOne({ verificationToken: token });
+
+    if (!user) throw new Error("Invalid or expired verification token.");
+
+    // 🚀 Hash and update the password since the admin generated a random one
+    if (newPassword) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+    }
+
+    user.isActive = true;
+    user.verificationToken = undefined;
+    user.expiresAt = undefined;
+    await user.save();
+
+    return { message: "Account verified and password updated successfully!" };
+}
+
     //forgot password
     public async forgotPassword(email: string): Promise<{ message: string; resetToken: string; user: any }> {
         const user = await UserModel.findOne({ email });

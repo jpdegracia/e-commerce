@@ -28,11 +28,11 @@ const ProductSchema = new Schema<IProduct>({
         type: String,
         trim: true,
     }],
-    category: { 
+    category: [{ 
         type: Schema.Types.ObjectId,
         ref: "Category",
         required: [true, "A product must belong to a category."]
-    }
+    }]
 
 }, {timestamps: true})
 

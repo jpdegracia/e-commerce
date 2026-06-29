@@ -1,1 +1,60 @@
-<p>verify-email works!</p>
+<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-md">
+    
+    <div class="bg-white py-12 px-8 shadow-sm sm:rounded-3xl border border-gray-100 text-center relative overflow-hidden">
+      
+      @if (isLoading()) {
+        <div class="space-y-6">
+          <div class="mx-auto w-16 h-16 rounded-full bg-orange-50 flex items-center justify-center">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900">Verifying Account</h2>
+            <p class="text-gray-500 mt-2 text-sm">Please wait while we validate your credentials...</p>
+          </div>
+        </div>
+      }
+
+      @if (!isLoading() && isSuccess()) {
+        <div class="space-y-6">
+          <div class="mx-auto w-16 h-16 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900">Email Verified!</h2>
+            <p class="text-gray-500 mt-2 text-sm">Your account is now fully active. You can safely log in to your dashboard.</p>
+          </div>
+          <div class="pt-4">
+            <a routerLink="/login" 
+               class="inline-block w-full py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 transition-colors">
+              Continue to Login
+            </a>
+          </div>
+        </div>
+      }
+
+      @if (!isLoading() && errorMessage()) {
+        <div class="space-y-6">
+          <div class="mx-auto w-16 h-16 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900">Verification Failed</h2>
+            <p class="text-gray-500 mt-2 text-sm">{{ errorMessage() }}</p>
+          </div>
+          <div class="pt-4">
+            <a routerLink="/login" 
+               class="inline-block w-full py-3 px-4 border border-gray-300 rounded-xl shadow-sm text-sm font-bold text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+              Return to Login
+            </a>
+          </div>
+        </div>
+      }
+
+    </div>
+  </div>
+</div>

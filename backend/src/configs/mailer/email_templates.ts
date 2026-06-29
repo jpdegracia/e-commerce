@@ -24,3 +24,16 @@ export const getEmailVerificationTemplate = (fullname: string, verifyUrl: string
         </div>
     `;
 };
+
+export const getSetupAccountTemplate = (fullname: string, setupUrl: string): string => {
+    return `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 5px;">
+            <h2 style="color: #333;">Welcome aboard, ${fullname}!</h2>
+            <p style="color: #555; line-height: 1.5;">An administrator has provisioned a new account for you. To activate your profile and secure your access, please set your permanent password by clicking the button below.</p>
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="${setupUrl}" style="background-color: #ea580c; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Set Up Account</a>
+            </div>
+            <p style="color: #999; font-size: 12px;">For security reasons, this link is temporary. If you have any questions, please contact your system administrator.</p>
+        </div>
+    `;
+};

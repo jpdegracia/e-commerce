@@ -121,4 +121,17 @@ export class AuthService {
 
     return false;
   }
+
+  //verification email
+  verifyEmail(token: string): Observable<any> {
+    // Hits: POST /api/auth/verify-email with the token in the body
+    return this.http.post<any>(`${this.apiUrl}/verify-email`, { token });
+  }
+
+  //set up account by admin
+  // Inside your auth.service.ts
+  setupAccount(token: string, password: string): Observable<any> {
+    // Hits: POST /api/auth/setup-account
+    return this.http.post<any>(`${this.apiUrl}/setup-account`, { token, password });
+  }
 }
