@@ -27,6 +27,9 @@ import { ViewUserComponent } from './admin/view-user/view-user';
 import { CreateRoleComponent } from './admin/create-role/create-role';
 import { UpdateRoleComponent } from './admin/update-role/update-role';
 import { ViewRoleComponent } from './admin/view-role/view-role';
+import { CreatePermissionComponent } from './admin/create-permission/create-permission';
+import { ViewPermissionComponent } from './admin/view-permission/view-permission';
+import { UpdatePermissionComponent } from './admin/update-permission/update-permission';
 
 export const routes: Routes = [
   // 🏠 Homepage
@@ -68,6 +71,10 @@ export const routes: Routes = [
 
       // permissions
       { path: 'permissions', component: AdminPermissionComponent },
+      { path: 'permissions/add', component: CreatePermissionComponent },
+      { path: 'permissions/view/:id', component: ViewPermissionComponent },
+      { path: 'permissions/edit/:id', component: UpdatePermissionComponent },
+
       
       // orders
       { path: 'orders', component: AdminOrdersComponent },

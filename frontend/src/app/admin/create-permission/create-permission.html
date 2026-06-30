@@ -1,0 +1,100 @@
+<div class="max-w-4xl mx-auto space-y-6 pb-12">
+  
+  <div class="flex items-center space-x-4">
+    <a routerLink="/admin/permissions" 
+       class="p-2 text-gray-400 hover:text-gray-900 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 transition-colors">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+      </svg>
+    </a>
+    <div>
+      <h2 class="text-2xl font-extrabold text-gray-900">Establish Access Rule</h2>
+      <p class="text-sm text-gray-500 mt-1">Define a new granular permission parameter for system operations.</p>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 sm:p-8">
+    
+    <form (ngSubmit)="onSubmitNewPermission()" class="space-y-8">
+      
+      <div class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+          
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold uppercase tracking-wider text-gray-400">Permission Name</label>
+            <input type="text"
+                   [ngModel]="permissionName()"
+                   (ngModelChange)="permissionName.set($any($event))"
+                   name="permissionName" required
+                   placeholder="e.g. content_delete"
+                   class="block w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-orange-500 focus:ring-orange-500 bg-gray-50/50 transition-all font-medium text-gray-900">
+          </div>
+
+          <div class="space-y-3">
+            <div class="space-y-1.5 cursor-pointer">
+              <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 justify-between">
+                Permission Group Assignment
+                @if (isLoadingGroups()) { <span class="text-orange-500 animate-pulse">Loading modules...</span> }
+              </label>
+              
+              <select [ngModel]="selectedGroup()"
+                      (ngModelChange)="selectedGroup.set($any($event))"
+                      name="selectedGroup"
+                      [disabled]="isLoadingGroups()"
+                      class="block w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-orange-500 focus:ring-orange-500 bg-gray-50/50 transition-all font-medium text-gray-900 cursor-pointer disabled:opacity-50">
+
+                <option value="">Existing Groupings for Permissions</option>
+                
+                <optgroup label="Existing Modules">
+                  @for (group of existingGroups(); track group) {
+                    <option [value]="group">{{ group }}</option>
+                  }
+                </optgroup>
+                
+                <option value="CUSTOM" class="font-bold text-orange-600">+ Create Custom Module Group</option>
+              </select>
+            </div>
+
+            @if (selectedGroup() === 'CUSTOM') {
+              <div class="animate-fadeIn space-y-1.5">
+                <input type="text"
+                       [ngModel]="customGroupName()"
+                       (ngModelChange)="customGroupName.set($any($event))"
+                       name="customGroupName" required
+                       placeholder="Enter new module name..."
+                       class="block w-full rounded-xl border border-orange-300 px-4 py-3 text-sm focus:border-orange-500 focus:ring-orange-500 bg-orange-50/30 transition-all font-bold text-orange-900 placeholder-orange-300">
+              </div>
+            }
+          </div>
+
+        </div>
+
+        <div class="space-y-1.5 pt-2">
+          <label class="block text-xs font-bold uppercase tracking-wider text-gray-400">Operational Scope Description</label>
+          <textarea [ngModel]="description()"
+                    (ngModelChange)="description.set($any($event))"
+                    name="description" required rows="3"
+                    placeholder="Briefly describe what this specific rule allows a user to do..."
+                    class="block w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-orange-500 focus:ring-orange-500 bg-gray-50/50 transition-all font-medium text-gray-900 resize-none"></textarea>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 border-t border-gray-100 pt-6 mt-8">
+        <a routerLink="/admin/permissions"
+           class="btn-cancel-product">
+          Cancel
+        </a>
+        <button type="submit"
+                [disabled]="isSubmitting() || !permissionName().trim() || !description().trim() || (selectedGroup() === 'CUSTOM' && !customGroupName().trim())"
+                class="btn-submit">
+          @if (isSubmitting()) {
+            Registering Rule...
+          } @else {
+            Save Access Rule
+          }
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

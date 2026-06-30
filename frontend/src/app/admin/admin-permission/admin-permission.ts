@@ -7,13 +7,13 @@ import { ToastService } from '../../services/toast';
 import { IPermission } from '../../interface/permission';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 // 🚀 Added faSolidMagnifyingGlass
-import { faSolidPlus, faSolidUserPen, faSolidTrashCan, faSolidMagnifyingGlass } from '@ng-icons/font-awesome/solid';
+import { faSolidPlus, faSolidUserPen, faSolidTrashCan, faSolidMagnifyingGlass, faSolidArrowsToEye } from '@ng-icons/font-awesome/solid';
 
 @Component({
   selector: 'app-admin-permission',
   standalone: true,
   imports: [CommonModule, RouterLink, NgIconComponent, FormsModule], // 🚀 Added FormsModule
-  providers: [provideIcons({ faSolidPlus, faSolidUserPen, faSolidTrashCan, faSolidMagnifyingGlass })],
+  providers: [provideIcons({ faSolidPlus, faSolidUserPen, faSolidTrashCan, faSolidMagnifyingGlass, faSolidArrowsToEye })],
   templateUrl: './admin-permission.html'
 })
 export class AdminPermissionComponent implements OnInit {
