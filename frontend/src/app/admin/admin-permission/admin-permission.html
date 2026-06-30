@@ -1,1 +1,138 @@
-<p>admin-permission works!</p>
+<div class="max-w-7xl mx-auto space-y-6 pb-12">
+  
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-6 rounded-3xl border border-gray-100 shadow-sm gap-4">
+    <div>
+      <h2 class="text-2xl font-extrabold text-gray-900">System Permissions</h2>
+      <p class="text-sm text-gray-500 mt-1">Manage the granular access control rules and operational parameters for your platform.</p>
+    </div>
+    
+    <div class="flex items-center gap-3 w-full sm:w-auto">
+      <div class="relative w-full sm:w-64">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+          <ng-icon name="faSolidMagnifyingGlass"></ng-icon>
+        </div>
+        <input type="text" 
+               [ngModel]="searchQuery()" 
+               (ngModelChange)="onSearchUpdate($event)"
+               placeholder="Search parameters..." 
+               class="block w-full rounded-xl border border-gray-200 pl-9 pr-4 py-2.5 text-sm focus:border-orange-500 focus:ring-orange-500 bg-gray-50/50 transition-all text-gray-900">
+      </div>
+
+      <a routerLink="/admin/permissions/add" 
+         class="btn-submit gap-2">
+        <ng-icon name="faSolidPlus" class="text-lg"></ng-icon>
+        Create Rule
+      </a>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex justify-center items-center py-24 bg-white rounded-3xl border border-gray-100 shadow-sm">
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-600"></div>
+    </div>
+  }
+
+  @if (!isLoading()) {
+    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          
+          <thead class="bg-gray-50/50">
+            <tr>
+              <th scope="col" class="px-6 py-4 text-left text-[11px] font-black text-gray-400 uppercase tracking-wider">Rule Identity</th>
+              <th scope="col" class="px-6 py-4 text-left text-[11px] font-black text-gray-400 uppercase tracking-wider">Module / Group</th>
+              <th scope="col" class="px-6 py-4 text-left text-[11px] font-black text-gray-400 uppercase tracking-wider">Operational Description</th>
+              <th scope="col" class="px-6 py-4 text-right text-[11px] font-black text-gray-400 uppercase tracking-wider">Operations</th>
+            </tr>
+          </thead>
+
+          <tbody class="bg-white divide-y divide-gray-100">
+            
+            @if (paginatedPermissions().length === 0) {
+              <tr>
+                <td colspan="4" class="px-6 py-12 text-center text-gray-500 text-sm font-medium">
+                  @if (searchQuery()) {
+                    No permissions found matching "<span class="font-bold text-gray-900">{{ searchQuery() }}</span>".
+                  } @else {
+                    No system permissions found in the database.
+                  }
+                </td>
+              </tr>
+            }
+
+            @for (perm of paginatedPermissions(); track perm._id) {
+              <tr class="hover:bg-gray-50/70 transition-colors">
+                
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-orange-50 text-orange-600 font-extrabold rounded-lg flex items-center justify-center text-xs uppercase border border-orange-100">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="text-sm font-bold text-gray-900 uppercase tracking-wide">{{ perm.permissionName }}</div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 uppercase tracking-wider">
+                    {{ perm.group || 'General' }}
+                  </span>
+                </td>
+
+                <td class="px-6 py-4">
+                  <div class="text-xs text-gray-600 font-medium max-w-md">{{ perm.description || 'No system definition provided.' }}</div>
+                </td>
+
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <div class="flex items-center justify-end gap-3">
+                    <a [routerLink]="['/admin/permissions/edit', perm._id]" 
+                       class="text-gray-400 hover:text-orange-600 transition-colors" title="Modify Details">
+                      <ng-icon name="faSolidUserPen" class="text-lg"></ng-icon>
+                    </a>
+                    <button (click)="deletePermissionTrigger(perm._id)" 
+                            class="text-gray-400 hover:text-red-600 transition-colors" title="Wipe Record">
+                      <ng-icon name="faSolidTrashCan" class="text-lg"></ng-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (filteredPermissions().length > 0) {
+        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
+          <div class="text-xs font-medium text-gray-500">
+            Showing <span class="font-bold text-gray-900">{{ (currentPage() - 1) * itemsPerPage + 1 }}</span> to 
+            <span class="font-bold text-gray-900">
+              {{ currentPage() * itemsPerPage > filteredPermissions().length ? filteredPermissions().length : currentPage() * itemsPerPage }}
+            </span> of 
+            <span class="font-bold text-gray-900">{{ filteredPermissions().length }}</span> entries
+          </div>
+          
+          <div class="flex items-center gap-2">
+            <button (click)="prevPage()" 
+                    [disabled]="currentPage() === 1"
+                    class="btn-pagination">
+              Previous
+            </button>
+            
+            <div class="px-3 py-1.5 text-xs font-bold text-gray-700">
+              Page {{ currentPage() }} of {{ totalPages() }}
+            </div>
+            
+            <button (click)="nextPage()" 
+                    [disabled]="currentPage() === totalPages()"
+                    class="btn-pagination">
+              Next
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

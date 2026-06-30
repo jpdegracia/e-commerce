@@ -13,7 +13,6 @@ import {
   faSolidUserCheck, 
   faSolidUserPen, 
   faSolidUserSlash,
-  
 } from '@ng-icons/font-awesome/solid';
 
 @Component({
@@ -30,7 +29,11 @@ export class AdminUsersComponent implements OnInit {
   users = signal<any[]>([]);
   isLoading = signal<boolean>(true);
   errorMessage = signal<string | null>(null);
+  
+  // Pagination Signals
   searchQuery = signal<string>('');
+  currentPage = signal<number>(1);
+  itemsPerPage = 15;
 
   // ⚡ Computed search: Filter exclusively by full name or email address
   filteredUsers = computed(() => {
@@ -43,6 +46,19 @@ export class AdminUsersComponent implements OnInit {
       user.fullname?.toLowerCase().includes(query) ||
       user.email?.toLowerCase().includes(query)
     );
+  });
+
+  // 🚀 Computed: Calculates total pages dynamically
+  totalPages = computed(() => {
+    const total = this.filteredUsers().length;
+    return Math.ceil(total / this.itemsPerPage) || 1; 
+  });
+
+  // ⚡ Computed: Slices array for current page
+  paginatedUsers = computed(() => {
+    const startIndex = (this.currentPage() - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.filteredUsers().slice(startIndex, endIndex);
   });
 
   // Modal Control Signals
@@ -67,6 +83,25 @@ export class AdminUsersComponent implements OnInit {
         this.isLoading.set(false);
       }
     });
+  }
+
+  // 🚀 Resets pagination to Page 1 whenever the user types in the search box
+  onSearchUpdate(query: string) {
+    this.searchQuery.set(query);
+    this.currentPage.set(1);
+  }
+
+  // 🚀 Pagination Controls
+  nextPage() {
+    if (this.currentPage() < this.totalPages()) {
+      this.currentPage.update(p => p + 1);
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage() > 1) {
+      this.currentPage.update(p => p - 1);
+    }
   }
 
   toggleUserActivation(user: any) {

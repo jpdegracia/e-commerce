@@ -142,9 +142,40 @@
           </tbody>
         </table>
       </div>
+      @if (filteredProducts().length > 0) {
+        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
+          <div class="text-xs font-medium text-gray-500">
+            Showing <span class="font-bold text-gray-900">{{ (currentPage() - 1) * itemsPerPage + 1 }}</span> to 
+            <span class="font-bold text-gray-900">
+              {{ currentPage() * itemsPerPage > filteredProducts().length ? filteredProducts().length : currentPage() * itemsPerPage }}
+            </span> of 
+            <span class="font-bold text-gray-900">{{ filteredProducts().length }}</span> entries
+          </div>
+          
+          <div class="flex items-center gap-2">
+            <button (click)="prevPage()" 
+                    [disabled]="currentPage() === 1"
+                    class="btn-pagination">
+              Previous
+            </button>
+            
+            <div class="px-3 py-1.5 text-xs font-bold text-gray-700">
+              Page {{ currentPage() }} of {{ totalPages() }}
+            </div>
+            
+            <button (click)="nextPage()" 
+                    [disabled]="currentPage() === totalPages()"
+                    class="btn-pagination">
+              Next
+            </button>
+          </div>
+        </div>
+      }
+
     </div>
   }
 </div>
+
 
 @if (isDeleteModalOpen()) {
   <div class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">

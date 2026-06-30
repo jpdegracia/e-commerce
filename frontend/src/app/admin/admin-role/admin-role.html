@@ -86,17 +86,17 @@
                     <div class="flex items-center justify-end gap-3">
 
                         <a [routerLink]="['/admin/roles/view', role._id]" 
-                        class="text-gray-400 hover:text-orange-600 transition-colors" title="Modify Details">
+                        class="btn-view-icon" title="View Role Details">
                         <ng-icon name="faSolidArrowsToEye" class="text-lg"></ng-icon>
                         </a>
                         
                         <a [routerLink]="['/admin/roles/edit', role._id]" 
-                        class="text-gray-400 hover:text-orange-600 transition-colors" title="Modify Details">
+                        class="btn-edit-icon" title="Modify Details">
                         <ng-icon name="faSolidPenToSquare" class="text-lg"></ng-icon>
                         </a>
 
                         <button (click)="deleteRoleTrigger(role._id)" 
-                                class="text-gray-400 hover:text-red-600 transition-colors" title="Wipe Record">
+                                class="btn-delete-icon" title="Delete Role">
                         <ng-icon name="faSolidTrashCan" class="text-lg"></ng-icon>
                         </button>
 

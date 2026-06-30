@@ -13,7 +13,6 @@
     </button>
   </div>
   
-
   <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
     <div class="relative w-full">
       <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
@@ -40,7 +39,7 @@
   }
 
   @if (!isLoading() && !errorMessage()) {
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
       <div class="overflow-x-auto">
         <table class="w-full text-left text-sm text-gray-600">
           <thead class="bg-gray-50 border-b border-gray-200 text-gray-900 font-semibold">
@@ -54,15 +53,19 @@
           </thead>
           <tbody class="divide-y divide-gray-100">
             
-            @if (filteredUsers().length === 0) {
+            @if (paginatedUsers().length === 0) {
               <tr>
                 <td colspan="5" class="px-6 py-12 text-center text-gray-500 font-medium">
-                  No matching user accounts registered.
+                  @if (searchQuery()) {
+                    No user accounts found matching "<span class="font-bold text-gray-900">{{ searchQuery() }}</span>".
+                  } @else {
+                    No matching user accounts registered.
+                  }
                 </td>
               </tr>
             }
 
-            @for (user of filteredUsers(); track user._id) {
+            @for (user of paginatedUsers(); track user._id) {
               <tr class="hover:bg-gray-50 transition-colors">
                 
                 <td class="px-6 py-4 whitespace-nowrap font-bold text-gray-900">
@@ -78,7 +81,7 @@
                             'bg-blue-600 text-gray-50 border-blue-700': (user.role?.rolename || user.role?.name)?.toLowerCase() === 'admin',
                             'bg-orange-600 text-white border-orange-700': (user.role?.rolename || user.role?.name)?.toLowerCase() === 'user'
                             }"
-                            class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wide border shadow-sm">
+                          class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wide border shadow-sm">
                         {{ user.role?.rolename || user.role?.name || 'No Role Assigned' }}
                     </span>
                 </td>
@@ -96,34 +99,61 @@
                 </td>
 
                 <td class="px-6 py-4 text-right whitespace-nowrap space-x-4">
-
-                  <button [routerLink]="['/admin/users/view', user._id]" class="text-slate-400 hover:text-blue-600 transition-colors" title="View User">
+                  <button [routerLink]="['/admin/users/view', user._id]" class="btn-view-icon" title="View User">
                     <ng-icon name="faSolidUser" size="18"></ng-icon>
                   </button>
                   
-                  <button [routerLink]="['/admin/users/edit', user._id]" class="text-slate-400 hover:text-blue-600 transition-colors" title="Modify User">
+                  <button [routerLink]="['/admin/users/edit', user._id]" class="btn-edit-icon" title="Modify User">
                     <ng-icon name="faSolidUserPen" size="18"></ng-icon>
                   </button>
 
                   <button (click)="toggleUserActivation(user)" 
                           [class.text-emerald-500]="!user.isActive"
                           [class.text-amber-500]="user.isActive"
-                          class="hover:opacity-80 transition-all" 
+                          class="hover:opacity-80 transition-all cursor-pointer" 
                           [title]="user.isActive ? 'Suspend Access' : 'Activate Access'">
                     <ng-icon [name]="user.isActive ? 'faSolidUserSlash' : 'faSolidUserCheck'" size="18"></ng-icon>
                   </button>
 
-                  <button (click)="openDeleteModal(user._id)" class="text-slate-400 hover:text-red-600 transition-colors" title="Delete User">
+                  <button (click)="openDeleteModal(user._id)" class="btn-delete-icon" title="Delete User">
                     <ng-icon name="faSolidTrashCan" size="18"></ng-icon>
                   </button>
-
                 </td>
               </tr>
             }
-
           </tbody>
         </table>
       </div>
+
+      @if (filteredUsers().length > 0) {
+        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
+          <div class="text-xs font-medium text-gray-500">
+            Showing <span class="font-bold text-gray-900">{{ (currentPage() - 1) * itemsPerPage + 1 }}</span> to 
+            <span class="font-bold text-gray-900">
+              {{ currentPage() * itemsPerPage > filteredUsers().length ? filteredUsers().length : currentPage() * itemsPerPage }}
+            </span> of 
+            <span class="font-bold text-gray-900">{{ filteredUsers().length }}</span> entries
+          </div>
+          
+          <div class="flex items-center gap-2">
+            <button (click)="prevPage()" 
+                    [disabled]="currentPage() === 1"
+                    class="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-bold text-gray-700 hover:bg-gray-50 hover:text-orange-600 disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-gray-700 transition-colors shadow-sm">
+              Previous
+            </button>
+            
+            <div class="px-3 py-1.5 text-xs font-bold text-gray-700">
+              Page {{ currentPage() }} of {{ totalPages() }}
+            </div>
+            
+            <button (click)="nextPage()" 
+                    [disabled]="currentPage() === totalPages()"
+                    class="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-bold text-gray-700 hover:bg-gray-50 hover:text-orange-600 disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-gray-700 transition-colors shadow-sm">
+              Next
+            </button>
+          </div>
+        </div>
+      }
     </div>
   }
 </div>
@@ -149,11 +179,11 @@
 
           <div class="flex justify-end gap-3 border-t border-gray-100 pt-4">
             <button type="button" (click)="closeDeleteModal()" [disabled]="isDeleting()"
-                    class="px-4 py-2.5 rounded-xl border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50">
+                    class="btn-cancel-product">
               Cancel
             </button>
             <button type="button" (click)="confirmDelete()" [disabled]="isDeleting()"
-                    class="px-4 py-2.5 rounded-xl bg-red-600 text-sm font-bold text-white shadow-sm hover:bg-red-500 transition-colors disabled:opacity-50 flex items-center">
+                    class="btn-delete">
               @if (isDeleting()) {
                 Deleting...
               } @else {

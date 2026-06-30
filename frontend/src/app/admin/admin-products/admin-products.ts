@@ -1,10 +1,10 @@
 import { ChangeDetectorRef, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule, DecimalPipe, NgClass } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms'; // 🚀 Import Forms
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product';
 import { CategoryService } from '../../services/category';
-import { ToastService } from '../../services/toast'; // Optional: if you want to show success messages
+import { ToastService } from '../../services/toast';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { faSolidArrowsToEye, faSolidPenToSquare, faSolidPlus, faSolidTrashCan } from '@ng-icons/font-awesome/solid';
 
@@ -32,20 +32,22 @@ export class AdminProductsComponent implements OnInit {
   // 🚀 1. Filter Tracking Signals
   searchQuery = signal<string>('');
   selectedCategoryFilter = signal<string>('');
+  
+  // 🚀 2. Pagination Signals
+  currentPage = signal<number>(1);
+  itemsPerPage = 15;
 
-  // 🚀 2. Reactive Computed Filter Logic
+  // 🚀 3. Reactive Computed Filter Logic
   filteredProducts = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
     const catFilter = this.selectedCategoryFilter();
     const allProducts = this.products();
 
     return allProducts.filter(product => {
-      // Check search match (name or description)
       const matchesSearch = !query || 
         product.productname?.toLowerCase().includes(query) || 
         product.description?.toLowerCase().includes(query);
 
-      // Check category match (handles array structure)
       let matchesCategory = !catFilter;
       if (catFilter && product.category) {
         if (Array.isArray(product.category)) {
@@ -59,17 +61,29 @@ export class AdminProductsComponent implements OnInit {
     });
   });
 
+  // 🚀 4. Computed: Calculates total pages dynamically based on filtered results
+  totalPages = computed(() => {
+    const total = this.filteredProducts().length;
+    return Math.ceil(total / this.itemsPerPage) || 1;
+  });
+
+  // 🚀 5. Computed: Slices array for current page
+  paginatedProducts = computed(() => {
+    const startIndex = (this.currentPage() - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.filteredProducts().slice(startIndex, endIndex);
+  });
+
   // Delete Modal Signal
   isDeleteModalOpen = signal<boolean>(false);
   productToDeleteId = signal<string | null>(null);
   isDeleting = signal<boolean>(false);
 
-  // 🚀 The Edit Form
+  // The Edit Form
   editForm: FormGroup = this.fb.group({
     productname: ['', [Validators.required, Validators.minLength(3)]],
     price: [0, [Validators.required, Validators.min(0)]],
     stock: [0, [Validators.required, Validators.min(0)]],
-    // Note: If category is an object ID in your DB, this should hold the ID string
     category: [[], Validators.required] 
   });
 
@@ -106,6 +120,32 @@ export class AdminProductsComponent implements OnInit {
   }
 
   // ==========================================
+  // 🚀 PAGINATION & FILTER HANDLERS
+  // ==========================================
+
+  onSearchUpdate(query: string) {
+    this.searchQuery.set(query);
+    this.currentPage.set(1); // Reset to page 1 on new search
+  }
+
+  onCategoryFilterUpdate(categoryId: string) {
+    this.selectedCategoryFilter.set(categoryId);
+    this.currentPage.set(1); // Reset to page 1 on new filter
+  }
+
+  nextPage() {
+    if (this.currentPage() < this.totalPages()) {
+      this.currentPage.update(p => p + 1);
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage() > 1) {
+      this.currentPage.update(p => p - 1);
+    }
+  }
+
+  // ==========================================
   // 🛠️ UI HELPER METHODS
   // ==========================================
 
@@ -114,12 +154,10 @@ export class AdminProductsComponent implements OnInit {
       return ['Uncategorized'];
     }
 
-    // If it's an array of objects (Multiple Categories)
     if (Array.isArray(categoryData)) {
       return categoryData.map((cat: any) => cat.categoryname || 'Unknown');
     }
 
-    // If it's a single populated object
     if (typeof categoryData === 'object') {
       return [categoryData.categoryname || 'Unknown'];
     }
@@ -127,13 +165,10 @@ export class AdminProductsComponent implements OnInit {
     return ['Uncategorized'];
   }
 
-
-
   // ==========================================
   // 🗑️ DELETE PRODUCT ACTIONS
   // ==========================================
 
-  // 1. Triggers when clicking the trash icon in the table
   openDeleteModal(id: string) {
     this.productToDeleteId.set(id);
     this.isDeleteModalOpen.set(true);
@@ -144,7 +179,6 @@ export class AdminProductsComponent implements OnInit {
     this.productToDeleteId.set(null);
   }
 
-  // 2. Triggers when confirming inside the modal popup
   confirmDelete() {
     const id = this.productToDeleteId();
     if (!id) return;
@@ -153,9 +187,7 @@ export class AdminProductsComponent implements OnInit {
 
     this.productService.deleteProduct(id).subscribe({
       next: () => {
-        // 🚀 Optimistic local update: Filter out the deleted item instantly
         this.products.update(current => current.filter(p => p._id !== id && p.id !== id));
-        
         this.toast.show("Product deleted successfully! 🗑️");
         this.isDeleting.set(false);
         this.closeDeleteModal();
