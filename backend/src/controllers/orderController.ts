@@ -66,3 +66,53 @@ export const getAllOrders = async (req: Request, res: Response) => {
         }
     }
 };
+
+// 🚀 ADDED FOR ADMIN: GET SINGLE ORDER PROFILE BY ID
+export const getAdminOrderById = async (req: Request, res: Response) => {
+    try {
+        const id = req.params.id as string;
+        const order = await orderService.getOrderById(id);
+        
+        if (!order) {
+            res.status(404).json({ message: "No transaction ledger matches this ID." });
+            return;
+        }
+
+        res.status(200).json({
+            message: "Transaction retrieved securely.",
+            details: order
+        });
+    } catch (error) {
+        if (error instanceof Error) {
+            res.status(400).json({ message: "Failed to retrieve order details", error: error.message });
+        } else {
+            res.status(500).json({ message: "Server Error", error });
+        }
+    }
+};
+
+// 🚀 ADDED FOR ADMIN: UPDATE ORDER STATUS / PAYMENT STATUS
+export const modifyOrderStatus = async (req: Request, res: Response) => {
+    try {
+        const id = req.params.id as string;
+        const { status, paymentStatus } = req.body;
+
+        const updatedOrder = await orderService.updateOrderStatus(id, status, paymentStatus);
+        
+        if (!updatedOrder) {
+            res.status(404).json({ message: "Target order reference cannot be located." });
+            return;
+        }
+
+        res.status(200).json({
+            message: "Fulfillment state safely transitioned.",
+            details: updatedOrder
+        });
+    } catch (error) {
+        if (error instanceof Error) {
+            res.status(400).json({ message: "Failed to update order tracking status", error: error.message });
+        } else {
+            res.status(500).json({ message: "Server Error", error });
+        }
+    }
+}

@@ -1,1 +1,118 @@
-<p>admin-dashboard works!</p>
+<div class="space-y-8 pb-16 pt-4">
+
+  <div>
+    <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Administrative Command Center</h2>
+    <p class="text-sm text-gray-500 mt-1">Real-time system state monitoring matrices, data aggregations, and module distribution controls.</p>
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex justify-center items-center py-32 bg-white rounded-3xl border border-gray-100 shadow-sm">
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-600"></div>
+    </div>
+  }
+
+  @if (!isLoading()) {
+    <div class="space-y-8 animate-fadeIn">
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center space-x-5">
+          <div class="w-12 h-12 bg-blue-50 border border-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl shrink-0">
+            👤
+          </div>
+          <div>
+            <span class="block text-xs font-black uppercase tracking-wider text-gray-400">Total Directory Accounts</span>
+            <span class="block text-2xl font-black text-gray-900 mt-0.5">{{ totalUsers() }}</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center space-x-5">
+          <div class="w-12 h-12 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-xl shrink-0">
+            🏷️
+          </div>
+          <div>
+            <span class="block text-xs font-black uppercase tracking-wider text-gray-400">Inventory Items</span>
+            <span class="block text-2xl font-black text-gray-900 mt-0.5">{{ totalProducts() }}</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center space-x-5">
+          <div class="w-12 h-12 bg-orange-50 border border-orange-100 text-orange-600 rounded-xl flex items-center justify-center text-xl shrink-0">
+            📦
+          </div>
+          <div>
+            <span class="block text-xs font-black uppercase tracking-wider text-gray-400">Store Categories</span>
+            <span class="block text-2xl font-black text-gray-900 mt-0.5">{{ totalCategories() }}</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center space-x-5">
+          <div class="w-12 h-12 bg-purple-50 border border-purple-100 text-purple-600 rounded-xl flex items-center justify-center text-xl shrink-0">
+            🛡️
+          </div>
+          <div>
+            <span class="block text-xs font-black uppercase tracking-wider text-gray-400">Security Parameters</span>
+            <span class="block text-2xl font-black text-gray-900 mt-0.5">{{ totalPermissions() }}</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 space-y-6">
+          <h3 class="text-lg font-extrabold text-gray-900 tracking-tight">Rapid Access Operations Panel</h3>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <a routerLink="/admin/products" class="group p-5 rounded-xl border border-gray-100 hover:border-orange-500 hover:bg-orange-50/10 transition-all">
+              <span class="block text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">Products Directory →</span>
+              <p class="text-xs text-gray-500 mt-1">Review active inventory stocks, execute pricing updates, and catalog imagery.</p>
+            </a>
+
+            <a routerLink="/admin/category" class="group p-5 rounded-xl border border-gray-100 hover:border-orange-500 hover:bg-orange-50/10 transition-all">
+              <span class="block text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">Categories Ledger →</span>
+              <p class="text-xs text-gray-500 mt-1">Manage global taxnomies, structural groupings, and cover media assets.</p>
+            </a>
+
+            <a routerLink="/admin/users" class="group p-5 rounded-xl border border-gray-100 hover:border-orange-500 hover:bg-orange-50/10 transition-all">
+              <span class="block text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">User Control Ledger →</span>
+              <p class="text-xs text-gray-500 mt-1">Alter organizational security tiers, revoke access states, and audit registrations.</p>
+            </a>
+
+            <a routerLink="/admin/permissions" class="group p-5 rounded-xl border border-gray-100 hover:border-orange-500 hover:bg-orange-50/10 transition-all">
+              <span class="block text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">Access Rule Profiles →</span>
+              <p class="text-xs text-gray-500 mt-1">Audit granular operation keys, system method parameters, and group bindings.</p>
+            </a>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
+          <h3 class="text-sm font-black uppercase tracking-wider text-gray-400">Critical Actions Track</h3>
+          
+          <div class="space-y-3">
+            @if (lowStockItemsCount() > 0) {
+              <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3">
+                <span class="text-xl">⚠️</span>
+                <div>
+                  <span class="block text-xs font-bold text-amber-900 uppercase tracking-wide">Stock Exhaustion Warning</span>
+                  <p class="text-xs text-amber-700 font-medium mt-0.5">There are currently <span class="font-bold underline">{{ lowStockItemsCount() }}</span> items with critical inventory levels (10 items or less remaining).</p>
+                  <a routerLink="/admin/products" class="inline-block text-[11px] font-black uppercase tracking-wider text-amber-900 hover:underline mt-2">Audit Inventory</a>
+                </div>
+              </div>
+            } @else {
+              <div class="p-4 rounded-xl bg-green-50 border border-green-200 flex items-start gap-3">
+                <span class="text-xl">✅</span>
+                <div>
+                  <span class="block text-xs font-bold text-green-900 uppercase tracking-wide">Inventory Stabilized</span>
+                  <p class="text-xs text-green-700 font-medium mt-0.5">All products currently satisfy target stock buffer requirements. No replenishment parameters tripped.</p>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  }
+</div>

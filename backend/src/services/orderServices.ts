@@ -131,6 +131,7 @@ class OrderService {
         return newOrder;
     }
 
+    // 👤 User Facing: Fetch history entries
     public async getUserOrderHistory(userId: string) {
         const orders = await OrderModel.find({ user: userId })
         .sort({ createdAt: -1 }) //sort decreasing order (latest on top)
@@ -139,6 +140,7 @@ class OrderService {
         return orders;
     }
 
+    // 👑 Admin Facing: Fetch full store ledger records
     public async getAllStoreOrders() {
         const allOrders = await OrderModel.find({})
             .sort({ createdAt: -1 })
@@ -146,6 +148,29 @@ class OrderService {
             .populate("items.product", "productname image"); 
             
         return allOrders;
+    }
+
+    // 🚀 ADDED FOR ADMIN: Fetch a single detailed transaction profile
+    public async getOrderById(id: string) {
+        return await OrderModel.findById(id)
+            .populate("user", "fullname email")
+            .populate("items.product", "productname image price");
+    }
+
+    // 🚀 ADDED FOR ADMIN: Transition fulfillment or logistics states (e.g., Shipping items out)
+    public async updateOrderStatus(id: string, status: string, paymentStatus?: string) {
+        const updateFields: any = { status };
+        
+        // If an order is delivered via C.O.D., the admin can set payment status to "Paid"
+        if (paymentStatus) {
+            updateFields.paymentStatus = paymentStatus;
+        }
+
+        return await OrderModel.findByIdAndUpdate(
+            id,
+            { $set: updateFields },
+            { new: true, runValidators: true }
+        ).populate("user", "fullname email").populate("items.product", "productname image");
     }
 
 }
