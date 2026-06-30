@@ -30,6 +30,10 @@ import { ViewRoleComponent } from './admin/view-role/view-role';
 import { CreatePermissionComponent } from './admin/create-permission/create-permission';
 import { ViewPermissionComponent } from './admin/view-permission/view-permission';
 import { UpdatePermissionComponent } from './admin/update-permission/update-permission';
+import { AdminCategoriesComponent } from './admin/admin-categories/admin-categories';
+import { CreateCategoryComponent } from './admin/create-category/create-category';
+import { UpdateCategoryComponent } from './admin/update-category/update-category';
+import { ViewCategoryComponent } from './admin/view-category/view-category';
 
 export const routes: Routes = [
   // 🏠 Homepage
@@ -74,6 +78,12 @@ export const routes: Routes = [
       { path: 'permissions/add', component: CreatePermissionComponent },
       { path: 'permissions/view/:id', component: ViewPermissionComponent },
       { path: 'permissions/edit/:id', component: UpdatePermissionComponent },
+
+      // categories
+      { path: 'category', component: AdminCategoriesComponent },
+      { path: 'category/add', component: CreateCategoryComponent },
+      { path: 'category/view/:id', component: ViewCategoryComponent },
+      { path: 'category/edit/:id', component: UpdateCategoryComponent },
 
       
       // orders

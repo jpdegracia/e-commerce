@@ -12,6 +12,10 @@ const PermissionSchema = new Schema<IPermission>({
         type: String,
         required: [true, "Permission description is Required"],
         trim: true,
+    },
+    group: {
+        type: String,
+        trim: true,
     }
 }, {timestamps: true})
 

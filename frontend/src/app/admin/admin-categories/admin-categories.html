@@ -1,1 +1,186 @@
-<p>admin-categories works!</p>
+<div class="space-y-6 pb-12">
+  
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900">Product Categories</h2>
+      <p class="text-sm text-gray-500 mt-1">Organize your store catalog and manage product groupings.</p>
+    </div>
+
+    <button routerLink="/admin/category/add" 
+            class="btn-submit gap-2">
+      <ng-icon name="faSolidPlus" size="18"></ng-icon>
+      Create Category
+    </button>
+  </div>
+  
+  <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
+    <div class="relative w-full">
+      <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
+        <ng-icon name="faSolidMagnifyingGlass" size="16"></ng-icon>
+      </div>
+      <input type="text" 
+             [value]="searchQuery()" 
+             (input)="onSearchUpdate($any($event.target).value)"
+             placeholder="Search categories by name or description..." 
+             class="block w-full rounded-xl border border-gray-300 pl-11 pr-4 py-2.5 text-sm focus:border-orange-500 focus:ring-orange-500 bg-gray-50/50 transition-all">
+    </div>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="rounded-xl bg-red-50 p-4 border border-red-200 text-sm font-medium text-red-800">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="flex justify-center items-center py-24">
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-600"></div>
+    </div>
+  }
+
+  @if (!isLoading() && !errorMessage()) {
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-gray-600">
+          <thead class="bg-gray-50 border-b border-gray-200 text-gray-900 font-semibold">
+            <tr>
+              <th scope="col" class="px-6 py-4">Category Name</th>
+              <th scope="col" class="px-6 py-4">Description</th>
+              <th scope="col" class="px-6 py-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            
+            @if (paginatedCategories().length === 0) {
+              <tr>
+                <td colspan="3" class="px-6 py-12 text-center text-gray-500 font-medium">
+                  @if (searchQuery()) {
+                    No categories found matching "<span class="font-bold text-gray-900">{{ searchQuery() }}</span>".
+                  } @else {
+                    No store categories have been established yet.
+                  }
+                </td>
+              </tr>
+            }
+
+            @for (cat of paginatedCategories(); track cat._id) {
+              <tr class="hover:bg-gray-50 transition-colors">
+                
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl overflow-hidden bg-slate-50 border border-gray-100 flex items-center justify-center shrink-0 shadow-sm">
+                      @if (cat.image) {
+                        <img [src]="cat.image" 
+                             [alt]="cat.categoryname" 
+                             class="w-full h-full object-cover"
+                             (error)="$any($event.target).src = 'https://placehold.co/100x100/png?text=📦'">
+                      } @else {
+                        <div class="w-full h-full bg-orange-50 text-orange-600 flex items-center justify-center font-bold uppercase text-sm">
+                          {{ cat.categoryname?.charAt(0) || 'C' }}
+                        </div>
+                      }
+                    </div>
+                    
+                    <div>
+                      <div class="font-bold text-gray-900">{{ cat.categoryname }}</div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="px-6 py-4">
+                  <div class="text-xs text-gray-500 max-w-md truncate">
+                    {{ cat.description || 'No description provided.' }}
+                  </div>
+                </td>
+
+                <td class="px-6 py-4 text-right whitespace-nowrap space-x-4">
+                  <button [routerLink]="['/admin/category/view', cat._id]" class="btn-view-icon" title="View Category Details">
+                    <ng-icon name="faSolidArrowsToEye" size="18"></ng-icon>
+                  </button>
+
+                  <button [routerLink]="['/admin/category/edit', cat._id]" class="btn-edit-icon" title="Edit Category">
+                    <ng-icon name="faSolidPenToSquare" size="18"></ng-icon>
+                  </button>
+
+                  <button (click)="openDeleteModal(cat._id)" class="btn-delete-icon" title="Delete Category">
+                    <ng-icon name="faSolidTrashCan" size="18"></ng-icon>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (filteredCategories().length > 0) {
+        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
+          <div class="text-xs font-medium text-gray-500">
+            Showing <span class="font-bold text-gray-900">{{ (currentPage() - 1) * itemsPerPage + 1 }}</span> to 
+            <span class="font-bold text-gray-900">
+              {{ currentPage() * itemsPerPage > filteredCategories().length ? filteredCategories().length : currentPage() * itemsPerPage }}
+            </span> of 
+            <span class="font-bold text-gray-900">{{ filteredCategories().length }}</span> entries
+          </div>
+          
+          <div class="flex items-center gap-2">
+            <button (click)="prevPage()" 
+                    [disabled]="currentPage() === 1"
+                    class="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-bold text-gray-700 hover:bg-gray-50 hover:text-orange-600 disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-gray-700 transition-colors shadow-sm">
+              Previous
+            </button>
+            
+            <div class="px-3 py-1.5 text-xs font-bold text-gray-700">
+              Page {{ currentPage() }} of {{ totalPages() }}
+            </div>
+            
+            <button (click)="nextPage()" 
+                    [disabled]="currentPage() === totalPages()"
+                    class="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-bold text-gray-700 hover:bg-gray-50 hover:text-orange-600 disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-gray-700 transition-colors shadow-sm">
+              Next
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@if (isDeleteModalOpen()) {
+  <div class="relative z-50" aria-modal="true">
+    <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"></div>
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+      <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+        <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md p-6 space-y-6">
+          
+          <div class="flex items-start space-x-4">
+            <div class="mx-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
+              <ng-icon name="faSolidTrashCan" size="18"></ng-icon>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-gray-900">Delete Category</h3>
+              <p class="text-sm text-gray-500 mt-2">
+                Are you sure you want to remove this category? Any products assigned exclusively to this category may become uncategorized.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-3 border-t border-gray-100 pt-4">
+            <button type="button" (click)="closeDeleteModal()" [disabled]="isDeleting()"
+                    class="px-5 py-2.5 rounded-xl border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+              Cancel
+            </button>
+            <button type="button" (click)="confirmDelete()" [disabled]="isDeleting()"
+                    class="px-6 py-2.5 rounded-xl bg-red-600 text-sm font-bold text-white shadow-sm hover:bg-red-500 transition-colors disabled:opacity-50 flex items-center">
+              @if (isDeleting()) {
+                Deleting...
+              } @else {
+                Delete Category
+              }
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+}

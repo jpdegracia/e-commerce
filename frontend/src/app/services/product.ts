@@ -18,33 +18,33 @@ export class ProductService {
   //create products
 
   //all products
-  getAllProducts(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/`);
+  getAllProducts(): Observable<IProduct[]> {
+    return this.http.get<IProduct[]>(`${this.apiUrl}/`);
   }
 
   //get all products by category
-  getProductsByCategory(categoryId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/category/${categoryId}`)
+  getProductsByCategory(categoryId: string): Observable<IProduct[]> {
+    return this.http.get<IProduct[]>(`${this.apiUrl}/category/${categoryId}`)
   }
 
   //get product by id
-  getProductByID(productId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${productId}`)
+  getProductByID(productId: string): Observable<IProduct> {
+    return this.http.get<IProduct>(`${this.apiUrl}/${productId}`)
   }
 
   //update product
-  updateProduct(productId: string, updateData: Partial<IProduct>): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${productId}`, updateData)
+  updateProduct(productId: string, updateData: Partial<IProduct>): Observable<IProduct> {
+    return this.http.put<IProduct>(`${this.apiUrl}/${productId}`, updateData)
   }
 
   //create product
-  createProduct(productData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}`, productData)
+  createProduct(productData: IProduct): Observable<IProduct> {
+    return this.http.post<IProduct>(`${this.apiUrl}`, productData)
   }
 
   //delete product
-  deleteProduct(productId: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${productId}`)
+  deleteProduct(productId: string): Observable<IProduct> {
+    return this.http.delete<IProduct>(`${this.apiUrl}/${productId}`)
   }
 
 }

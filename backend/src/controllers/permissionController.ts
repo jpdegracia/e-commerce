@@ -5,11 +5,12 @@ import { permissionServices } from "../services/permissionServices";
 
 export const createPermissions = async ( req: Request, res: Response) => {
     try {
-        const {permissionName, description} = req.body;
+        const {permissionName, description, group} = req.body;
 
         const newPermission = await permissionServices.createPermission({
             permissionName,
-            description
+            description,
+            group,
         })
         res.status(201).json({ message: "Permission successfully added", permission: newPermission})
     } catch (error) {
@@ -54,9 +55,9 @@ export const getPermissionByID = async (req: Request, res: Response) => {
 export const updatedPermission = async (req: Request, res: Response) => {
     try {
         const id = req.params.id as string;
-        const { permissionName, description } = req.body;
+        const { permissionName, description, group } = req.body;
 
-        const updatedPermission = await permissionServices.updatePermissions(id, {permissionName, description})
+        const updatedPermission = await permissionServices.updatePermissions(id, {permissionName, description, group})
         
         if (!updatedPermission) {
             return res.status(404).json({ error: "Permission not found on this ID"})

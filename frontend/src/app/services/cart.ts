@@ -47,7 +47,7 @@ export class CartService {
   // 🛒 ADD ITEM
   addToCart(item: CartItem) {
     if (this.isLoggedIn()) {
-      this.http.post<any>(this.apiUrl, { productId: item.productId, quantity: item.quantity || 1 }).subscribe({
+      this.http.post<CartItem>(this.apiUrl, { productId: item.productId, quantity: item.quantity || 1 }).subscribe({
         next: () => this.loadFromDB(),
         error: (err) => console.error('Failed to add to DB', err)
       });
@@ -67,7 +67,7 @@ export class CartService {
   // 🗑️ REMOVE ITEM
   removeFromCart(productId: string) {
     if (this.isLoggedIn()) {
-      this.http.delete<any>(`${this.apiUrl}/${productId}`).subscribe({
+      this.http.delete<CartItem>(`${this.apiUrl}/${productId}`).subscribe({
         next: () => this.loadFromDB(),
         error: (err) => console.error('Failed to remove from DB', err)
       });
@@ -80,7 +80,7 @@ export class CartService {
   // 🔢 UPDATE QUANTITY
   updateQuantity(productId: string, quantity: number) {
     if (this.isLoggedIn()) {
-      this.http.put<any>(this.apiUrl, { productId, quantity }).subscribe({
+      this.http.put<CartItem>(this.apiUrl, { productId, quantity }).subscribe({
         next: () => this.loadFromDB(),
         error: (err) => console.error('Failed to update DB', err)
       });
@@ -186,7 +186,7 @@ export class CartService {
     
     // Loop through guest items and push to DB
     guestItems.forEach(item => {
-      this.http.post<any>(this.apiUrl, { productId: item.productId, quantity: item.quantity }).subscribe({
+      this.http.post<CartItem>(this.apiUrl, { productId: item.productId, quantity: item.quantity }).subscribe({
         next: () => {
           this.loadFromDB(); // Reload the official DB cart for each successful sync
         },

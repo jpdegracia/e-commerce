@@ -5,13 +5,13 @@ import { PermissionService } from '../../services/permission';
 import { ToastService } from '../../services/toast';
 import { IPermission } from '../../interface/permission';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { faSolidShieldHalved } from '@ng-icons/font-awesome/solid';
+import { faSolidPenToSquare, faSolidShieldHalved } from '@ng-icons/font-awesome/solid';
 
 @Component({
   selector: 'app-view-permission',
   standalone: true,
   imports: [CommonModule, RouterLink, NgIcon],
-  providers:[provideIcons({ faSolidShieldHalved })],
+  providers:[provideIcons({ faSolidShieldHalved, faSolidPenToSquare })],
   templateUrl: './view-permission.html'
 })
 export class ViewPermissionComponent implements OnInit {

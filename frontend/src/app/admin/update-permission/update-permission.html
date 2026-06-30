@@ -85,12 +85,12 @@
 
         <div class="flex items-center justify-end gap-3 border-t border-gray-100 pt-6 mt-8">
           <a routerLink="/admin/permissions"
-             class="px-5 py-2.5 rounded-xl border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+             class="btn-cancel-product">
             Cancel
           </a>
           <button type="submit"
                   [disabled]="isSubmitting() || !permissionName().trim() || !description().trim() || (selectedGroup() === 'CUSTOM' && !customGroupName().trim())"
-                  class="px-6 py-2.5 rounded-xl bg-orange-600 text-sm font-bold text-white shadow-sm hover:bg-orange-500 transition-colors disabled:opacity-50 flex items-center">
+                  class="btn-submit">
             @if (isSubmitting()) {
               Updating Configuration...
             } @else {

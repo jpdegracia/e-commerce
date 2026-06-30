@@ -1,0 +1,82 @@
+<div class="max-w-4xl mx-auto space-y-8 pb-16 pt-4">
+  
+  <div class="flex items-center justify-between">
+    <div class="flex items-center space-x-5">
+      <a routerLink="/admin/categories" 
+         class="p-2.5 text-gray-400 hover:text-gray-900 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+      </a>
+      <div class="space-y-0.5">
+        <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight">Category Catalog Details</h2>
+        <p class="text-sm text-gray-500">Review explicit classification data parameters and description boundaries.</p>
+      </div>
+    </div>
+
+    @if (!isLoading() && category()) {
+      <a [routerLink]="['/admin/category/edit', category()?._id]" 
+         class="btn-modify gap-2">
+        <ng-icon name="faSolidPenToSquare" size="16"></ng-icon>
+        Modify Category
+      </a>
+    }
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex justify-center items-center py-32 bg-white rounded-3xl border border-gray-100 shadow-sm">
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-600"></div>
+    </div>
+  }
+
+  @if (!isLoading() && category()) {
+    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden animate-fadeIn">
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+        
+        <div class="p-6 sm:p-8 flex flex-col justify-center items-center bg-slate-50/50">
+          <span class="block text-xs font-black uppercase tracking-wider text-gray-400 mb-4 self-start">Classification Cover</span>
+          <div class="w-full aspect-square max-w-60 rounded-2xl overflow-hidden border border-gray-200 bg-white flex items-center justify-center shadow-sm relative group">
+            @if (category()?.image) {
+              <img [src]="category()?.image" 
+                   alt="{{ category()?.categoryname }}" 
+                   class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                   (error)="$any($event.target).src = 'https://placehold.co/300x300/png?text=Broken+Link+⚠️'">
+            } @else {
+              <div class="text-center p-6 bg-orange-50 w-full h-full flex flex-col justify-center items-center text-orange-600">
+                <span class="text-5xl block mb-2">📦</span>
+                <span class="text-xs font-black uppercase tracking-wider">{{ category()?.categoryname?.charAt(0) || 'C' }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="md:col-span-2 p-6 sm:p-10 space-y-8 flex flex-col justify-between">
+          
+          <div class="space-y-6">
+            <div class="space-y-1">
+              <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider bg-orange-50 text-orange-700 border border-orange-100 shadow-sm">
+                Active Catalog
+              </span>
+              <h1 class="text-3xl font-black text-gray-900 tracking-tight pt-1">{{ category()?.categoryname }}</h1>
+              
+            </div>
+
+            <div class="space-y-2 pt-2">
+              <label class="block text-xs font-black uppercase tracking-wider text-gray-400">Context Scope Scope Description</label>
+              <div class="bg-gray-50/70 rounded-2xl border border-gray-100 p-5">
+                <p class="text-sm font-medium text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  {{ category()?.description || 'No specialized description framework defined for this store classification ledger.' }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          
+
+        </div>
+      </div>
+
+    </div>
+  }
+</div>
