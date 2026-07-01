@@ -134,8 +134,12 @@ class OrderService {
     // 👤 User Facing: Fetch history entries
     public async getUserOrderHistory(userId: string) {
         const orders = await OrderModel.find({ user: userId })
-        .sort({ createdAt: -1 }) //sort decreasing order (latest on top)
-        .populate("items.products", "productname image stock")
+            .populate('user', 'fullname email') // 🚀 Populates the user details
+            .populate({
+                path: 'items.product', // 🚀 Populates the product details inside the items array
+                select: 'productname images image price' // specifically grabs the images!
+            })
+            .sort({ createdAt: -1 });
 
         return orders;
     }

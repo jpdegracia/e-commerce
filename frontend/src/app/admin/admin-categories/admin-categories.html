@@ -76,7 +76,7 @@
                              (error)="$any($event.target).src = 'https://placehold.co/100x100/png?text=📦'">
                       } @else {
                         <div class="w-full h-full bg-orange-50 text-orange-600 flex items-center justify-center font-bold uppercase text-sm">
-                          {{ cat.categoryname?.charAt(0) || 'C' }}
+                          {{ cat.categoryname.charAt(0) || 'C' }}
                         </div>
                       }
                     </div>

@@ -1,0 +1,111 @@
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative">
+  
+  <div class="mb-10 text-center sm:text-left">
+    <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Order History</h1>
+    <p class="mt-2 text-sm text-gray-500">Check the status of your recent orders, track shipments, and view past purchases.</p>
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex justify-center items-center py-32 bg-white rounded-3xl border border-gray-100 shadow-sm">
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-600"></div>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="rounded-2xl bg-red-50 p-6 border border-red-200 text-center animate-fadeIn">
+      <p class="text-base font-bold text-red-800">{{ errorMessage() }}</p>
+      <button (click)="loadOrderHistory()" class="mt-4 px-4 py-2 bg-white text-red-700 font-bold text-sm rounded-xl border border-red-200 hover:bg-red-50 transition-colors shadow-sm">
+        Try Again
+      </button>
+    </div>
+  }
+
+  @if (!isLoading() && !errorMessage() && orders().length === 0) {
+    <div class="text-center py-24 bg-gray-50 rounded-3xl border border-dashed border-gray-300">
+      <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white text-gray-400 shadow-sm mb-6">
+        <ng-icon name="faSolidBoxOpen" size="32"></ng-icon>
+      </div>
+      <h3 class="text-xl font-bold text-gray-900 mb-2">No orders yet</h3>
+      <p class="text-sm text-gray-500 mb-8 max-w-sm mx-auto">When you place an order, it will show up here so you can track its delivery status.</p>
+      <a routerLink="/" class="px-8 py-3.5 bg-orange-600 text-white font-bold rounded-xl hover:bg-orange-500 transition-colors shadow-sm">
+        Start Shopping
+      </a>
+    </div>
+  }
+
+  @if (!isLoading() && !errorMessage() && orders().length > 0) {
+    <div class="space-y-8 animate-fadeIn">
+      @for (order of orders(); track order._id) {
+        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+          
+          <div class="bg-slate-50 border-b border-gray-200 px-6 py-5 sm:flex sm:items-center sm:justify-between">
+            
+            <div class="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4 sm:gap-x-8 flex-1">
+              <div>
+                <dt class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Order Placed</dt>
+                <dd class="text-sm font-semibold text-gray-900">{{ order.createdAt | date:'longDate' }}</dd>
+              </div>
+              <div>
+                <dt class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Total</dt>
+                <dd class="text-sm font-black text-gray-900">₱{{ order.totalAmount | number:'1.2-2' }}</dd>
+              </div>
+              <div class="col-span-2 sm:col-span-2 sm:text-right">
+                <dt class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Order ID</dt>
+                <dd class="text-sm font-mono text-gray-600">#{{ order._id | uppercase }}</dd>
+              </div>
+            </div>
+          </div>
+
+          <div class="px-6 py-6 sm:flex sm:items-start sm:justify-between">
+            <div class="w-full">
+              
+              <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-2">
+                  <span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider border shadow-sm"
+                    [ngClass]="{
+                      'bg-amber-50 text-amber-700 border-amber-200': order.status === 'Pending',
+                      'bg-blue-50 text-blue-700 border-blue-200': order.status === 'Processing',
+                      'bg-purple-50 text-purple-700 border-purple-200': order.status === 'Shipped',
+                      'bg-indigo-50 text-indigo-700 border-indigo-200': order.status === 'On-Delivery',
+                      'bg-emerald-50 text-emerald-700 border-emerald-200': order.status === 'Delivered',
+                      'bg-red-50 text-red-700 border-red-200': order.status === 'Cancelled'
+                    }">
+                    {{ order.status }}
+                  </span>
+                  <span class="text-sm font-medium text-gray-500 hidden sm:inline-block">
+                    @if (order.status === 'Shipped' || order.status === 'On-Delivery') {
+                      Your items are on the way!
+                    } @else if (order.status === 'Delivered') {
+                      Package arrived safely.
+                    } @else {
+                      We are preparing your package.
+                    }
+                  </span>
+                </div>
+              </div>
+
+              <ul class="divide-y divide-gray-100 border-t border-gray-100">
+                @for (item of order.items; track item.product._id) {
+                  <li class="py-4 flex sm:items-center">
+                    <img [src]="item.product.images?.[0] || item.product.image || 'https://placehold.co/100x100/png?text=No+Image'"
+                         [alt]="item.product.productname" 
+                         class="h-16 w-16 rounded-xl object-cover border border-gray-200 shadow-sm sm:h-20 sm:w-20">
+                    <div class="ml-4 flex-1">
+                      <div class="font-bold text-gray-900 line-clamp-1">{{ item.product.productname }}</div>
+                      <div class="text-sm text-gray-500 mt-1">₱{{ item.price | number:'1.2-2' }}</div>
+                    </div>
+                    <div class="mt-4 sm:mt-0 sm:ml-4 text-sm font-black text-gray-700 bg-gray-50 px-3 py-1 rounded-lg border border-gray-100">
+                      Qty: {{ item.quantity }}
+                    </div>
+                  </li>
+                }
+              </ul>
+
+            </div>
+          </div>
+          
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -34,6 +34,8 @@ import { AdminCategoriesComponent } from './admin/admin-categories/admin-categor
 import { CreateCategoryComponent } from './admin/create-category/create-category';
 import { UpdateCategoryComponent } from './admin/update-category/update-category';
 import { ViewCategoryComponent } from './admin/view-category/view-category';
+import { OrderHistoryComponent } from './components/order-history/order-history';
+
 
 export const routes: Routes = [
   // 🏠 Homepage
@@ -98,6 +100,8 @@ export const routes: Routes = [
   //Carts and Orders
   { path: 'cart', component: CartComponent },
   { path: 'checkout', component: CheckoutComponent },
+  { path: 'my-order-history', component: OrderHistoryComponent },
+
 
 
   

@@ -71,13 +71,13 @@
                 </td>
 
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="font-bold text-gray-900">{{ order.user?.fullname || 'Unknown User' }}</div>
-                  <div class="text-xs text-gray-500 font-medium mt-0.5">{{ order.user?.email || 'N/A' }}</div>
+                  <div class="font-bold text-gray-900">{{ order.user.fullname || 'Unknown User' }}</div>
+                  <div class="text-xs text-gray-500 font-medium mt-0.5">{{ order.user.email || 'N/A' }}</div>
                 </td>
 
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="font-black text-gray-900">₱{{ order.totalAmount | number:'1.2-2' }}</div>
-                  <div class="text-[11px] text-gray-400 font-semibold mt-1">{{ order.items?.length || 0 }} Item(s)</div>
+                  <div class="text-[11px] text-gray-400 font-semibold mt-1">{{ order.items.length || 0 }} Item(s)</div>
                 </td>
 
                 <td class="px-6 py-4 whitespace-nowrap">

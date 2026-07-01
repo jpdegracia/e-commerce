@@ -9,6 +9,7 @@ export interface IPopulatedUser {
 export interface IPopulatedProduct {
   _id: string;
   productname: string;
+  images?: string[];
   image?: string;
   price?: number;
 }
