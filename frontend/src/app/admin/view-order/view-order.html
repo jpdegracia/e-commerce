@@ -1,0 +1,141 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  
+  <a routerLink="/admin/orders" class="inline-flex items-center text-sm font-bold text-gray-500 hover:text-orange-600 mb-6 transition-colors">
+    <ng-icon name="faSolidArrowLeft" class="mr-2"></ng-icon>
+    Back to Orders Ledger
+  </a>
+
+  @if (isLoading()) {
+    <div class="flex justify-center items-center py-32 bg-white rounded-2xl border border-gray-100 shadow-sm">
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-600"></div>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="rounded-2xl bg-red-50 p-6 border border-red-200 text-center">
+      <p class="text-base font-bold text-red-800">{{ errorMessage() }}</p>
+    </div>
+  }
+
+  @if (!isLoading() && !errorMessage() && order()) {
+    <div class="animate-fadeIn">
+      
+      <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Order #{{ order()?._id | uppercase }}</h1>
+          <p class="text-sm text-gray-500 mt-1">Placed on {{ order()?.createdAt | date:'medium' }}</p>
+        </div>
+
+        <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-200">
+          <label class="text-sm font-bold text-gray-700 whitespace-nowrap">Status:</label>
+          <select [(ngModel)]="selectedStatus" 
+                  class="block w-48 rounded-lg border-gray-300 text-sm focus:border-orange-500 focus:ring-orange-500 shadow-sm py-2 px-3">
+            @for (status of availableStatuses; track status) {
+              <option [value]="status">{{ status }}</option>
+            }
+          </select>
+          <button (click)="saveStatus()" 
+                  [disabled]="isUpdating() || selectedStatus() === order()?.status"
+                  class="inline-flex items-center px-4 py-2 bg-slate-900 text-white text-sm font-bold rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            @if (isUpdating()) {
+              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              Saving...
+            } @else {
+              <ng-icon name="faSolidFloppyDisk" class="mr-2"></ng-icon>
+              Update
+            }
+          </button>
+        </div>
+      </div>
+
+      <div class="lg:grid lg:grid-cols-3 lg:gap-8">
+        
+        <div class="lg:col-span-2 space-y-8">
+          <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-slate-50">
+              <h2 class="text-lg font-bold text-gray-900">Purchased Items</h2>
+            </div>
+            
+            <ul class="divide-y divide-gray-100">
+              @for (item of order()?.items; track item.product._id) {
+                <li class="p-6 flex items-center">
+                  <img [src]="item.product.images?.[0] || item.product.image || 'https://placehold.co/100x100/png?text=No+Image'" 
+                       [alt]="item.product.productname" 
+                       class="h-16 w-16 rounded-xl object-cover border border-gray-200 shadow-sm shrink-0">
+                  
+                  <div class="ml-4 flex-1">
+                    <div class="font-bold text-gray-900">{{ item.product.productname }}</div>
+                  </div>
+                  
+                  <div class="ml-4 text-right">
+                    <div class="text-sm font-bold text-gray-600 mb-1">₱{{ item.price | number:'1.2-2' }} × {{ item.quantity }}</div>
+                    <div class="text-base font-black text-slate-900">₱{{ (item.price * item.quantity) | number:'1.2-2' }}</div>
+                  </div>
+                </li>
+              }
+            </ul>
+            
+            <div class="bg-slate-50 border-t border-gray-200 p-6">
+              <div class="flex justify-between items-center">
+                <span class="text-sm font-bold text-gray-600">Total Order Amount</span>
+                <span class="text-2xl font-black text-orange-600">₱{{ order()?.totalAmount | number:'1.2-2' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-1 space-y-8 mt-8 lg:mt-0">
+          
+          <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+            <h3 class="text-base font-bold text-gray-900 flex items-center mb-4">
+              <ng-icon name="faSolidUser" class="text-gray-400 mr-2"></ng-icon>
+              Customer Details
+            </h3>
+            <div class="space-y-3">
+              <div>
+                <p class="text-xs font-bold text-gray-500 uppercase">Account Name</p>
+                <p class="text-sm font-medium text-gray-900">{{ order()?.user?.fullname }}</p>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-gray-500 uppercase">Email</p>
+                <p class="text-sm font-medium text-orange-600">{{ order()?.user?.email }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+            <h3 class="text-base font-bold text-gray-900 flex items-center mb-4">
+              <ng-icon name="faSolidLocationDot" class="text-gray-400 mr-2"></ng-icon>
+              Shipping Address
+            </h3>
+            <p class="text-sm text-gray-700 leading-relaxed font-medium">
+              {{ order()?.shippingAddress }}
+            </p>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+            <h3 class="text-base font-bold text-gray-900 flex items-center mb-4">
+              <ng-icon name="faSolidCreditCard" class="text-gray-400 mr-2"></ng-icon>
+              Payment Info
+            </h3>
+            <div class="space-y-3">
+              <div>
+                <p class="text-xs font-bold text-gray-500 uppercase">Method</p>
+                <p class="text-sm font-medium text-gray-900">{{ order()?.paymentMethod }}</p>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-gray-500 uppercase">Status</p>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold"
+                      [ngClass]="order()?.paymentStatus === 'Paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'">
+                  {{ order()?.paymentStatus }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  }
+</div>

@@ -36,6 +36,7 @@ import { UpdateCategoryComponent } from './admin/update-category/update-category
 import { ViewCategoryComponent } from './admin/view-category/view-category';
 import { OrderHistoryComponent } from './components/order-history/order-history';
 import { ViewOrderComponent } from './components/view-order/view-order';
+import { AdminViewOrderComponent } from './admin/view-order/view-order';
 
 
 export const routes: Routes = [
@@ -92,6 +93,8 @@ export const routes: Routes = [
       
       // orders
       { path: 'orders', component: AdminOrdersComponent },
+      { path: 'orders/view/:id', component: AdminViewOrderComponent }
+
     ]
   },
 

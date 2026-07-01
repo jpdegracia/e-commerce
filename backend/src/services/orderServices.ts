@@ -173,7 +173,7 @@ class OrderService {
     public async getOrderById(id: string) {
         return await OrderModel.findById(id)
             .populate("user", "fullname email")
-            .populate("items.product", "productname image price");
+            .populate("items.product", "productname images image price stock");
     }
 
     // 👑 Admin Facing: Fetch full store ledger records
