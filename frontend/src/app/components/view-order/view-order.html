@@ -1,0 +1,207 @@
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative">
+  
+  <a routerLink="/my-order-history" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-orange-600 mb-8 transition-colors">
+    <ng-icon name="faSolidArrowLeft" class="mr-2"></ng-icon>
+    Back to Order History
+  </a>
+
+  @if (isLoading()) {
+    <div class="flex justify-center items-center py-32 bg-white rounded-3xl border border-gray-100 shadow-sm">
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-600"></div>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="rounded-2xl bg-red-50 p-6 border border-red-200 text-center animate-fadeIn">
+      <p class="text-base font-bold text-red-800">{{ errorMessage() }}</p>
+      <a routerLink="/orders/history" class="mt-4 inline-block px-4 py-2 bg-white text-red-700 font-bold text-sm rounded-xl border border-red-200 hover:bg-red-50 transition-colors shadow-sm">
+        Return to History
+      </a>
+    </div>
+  }
+
+  @if (!isLoading() && !errorMessage() && order()) {
+    <div class="animate-fadeIn">
+      
+      <div class="mb-8 sm:flex sm:items-center sm:justify-between">
+        <div>
+          <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Order #{{ order()?._id | uppercase }}</h1>
+          <p class="mt-2 text-sm text-gray-500">Placed on {{ order()?.createdAt | date:'longDate' }} at {{ order()?.createdAt | date:'shortTime' }}</p>
+        </div>
+        
+        <div class="mt-4 sm:mt-0">
+          <span class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-black uppercase tracking-wider border shadow-sm"
+            [ngClass]="{
+              'bg-amber-50 text-amber-700 border-amber-200': order()?.status === 'Pending',
+              'bg-blue-50 text-blue-700 border-blue-200': order()?.status === 'Processing',
+              'bg-purple-50 text-purple-700 border-purple-200': order()?.status === 'Shipped',
+              'bg-indigo-50 text-indigo-700 border-indigo-200': order()?.status === 'On-Delivery',
+              'bg-emerald-50 text-emerald-700 border-emerald-200': order()?.status === 'Delivered',
+              'bg-red-50 text-red-700 border-red-200': order()?.status === 'Cancelled'
+            }">
+            {{ order()?.status }}
+          </span>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-8 p-6 sm:p-10">
+        <h2 class="text-lg font-bold text-gray-900 mb-8 sm:mb-12">Delivery Status</h2>
+
+        @if (order()?.status === 'Cancelled') {
+          <div class="flex flex-col sm:flex-row items-center justify-center p-6 bg-red-50 rounded-xl border border-red-200 text-center sm:text-left">
+            <ng-icon name="faSolidCircleXmark" class="text-red-500 text-4xl sm:mr-4 mb-3 sm:mb-0"></ng-icon>
+            <div>
+              <h3 class="text-red-800 font-bold text-lg">Order Cancelled</h3>
+              <p class="text-red-600 text-sm">This order has been cancelled and will not be delivered.</p>
+            </div>
+          </div>
+        } 
+        
+        @else {
+          <div class="relative max-w-4xl mx-auto px-4 sm:px-0">
+            
+            <div class="absolute left-6 right-6 sm:left-0 sm:right-0 top-5 sm:top-6 h-1.5 bg-gray-100 rounded-full z-0"></div>
+            
+            <div class="absolute left-6 sm:left-0 top-5 sm:top-6 h-1.5 bg-orange-600 rounded-full transition-all duration-1000 ease-in-out z-0"
+                 [style.width]="getTrackerWidth(order()?.status)"></div>
+
+            <div class="relative flex justify-between items-start z-10">
+              
+              <div class="flex flex-col items-center">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border-4 transition-colors duration-500 bg-white"
+                     [ngClass]="isStepCompleted(order()?.status, 0) ? 'border-orange-600 text-orange-600 shadow-md' : 'border-gray-200 text-gray-300'">
+                  <ng-icon name="faSolidClipboardList" class="text-lg"></ng-icon>
+                </div>
+                <div class="mt-3 text-[10px] sm:text-sm font-bold text-center" [ngClass]="isStepCompleted(order()?.status, 0) ? 'text-gray-900' : 'text-gray-400'">Pending</div>
+                <div class="text-[10px] sm:text-xs text-gray-500 mt-1 hidden sm:block text-center w-20">Order Placed</div>
+              </div>
+
+              <div class="flex flex-col items-center">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border-4 transition-colors duration-500 bg-white"
+                     [ngClass]="isStepCompleted(order()?.status, 1) ? 'border-orange-600 text-orange-600 shadow-md' : 'border-gray-200 text-gray-300'">
+                  <ng-icon name="faSolidBox" class="text-sm"></ng-icon>
+                </div>
+                <div class="mt-3 text-[10px] sm:text-sm font-bold text-center" [ngClass]="isStepCompleted(order()?.status, 1) ? 'text-gray-900' : 'text-gray-400'">Processing</div>
+                <div class="text-[10px] sm:text-xs text-gray-500 mt-1 hidden sm:block text-center w-20">Packing Items</div>
+              </div>
+
+              <div class="flex flex-col items-center">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border-4 transition-colors duration-500 bg-white"
+                     [ngClass]="isStepCompleted(order()?.status, 2) ? 'border-orange-600 text-orange-600 shadow-md' : 'border-gray-200 text-gray-300'">
+                  <ng-icon name="faSolidTruck" class="text-sm"></ng-icon>
+                </div>
+                <div class="mt-3 text-[10px] sm:text-sm font-bold text-center" [ngClass]="isStepCompleted(order()?.status, 2) ? 'text-gray-900' : 'text-gray-400'">Shipped</div>
+                <div class="text-[10px] sm:text-xs text-gray-500 mt-1 hidden sm:block text-center w-20">Handed to Courier</div>
+              </div>
+
+              <div class="flex flex-col items-center">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border-4 transition-colors duration-500 bg-white"
+                     [ngClass]="isStepCompleted(order()?.status, 3) ? 'border-orange-600 text-orange-600 shadow-md' : 'border-gray-200 text-gray-300'">
+                  <ng-icon name="faSolidLocationDot" class="text-sm"></ng-icon>
+                </div>
+                <div class="mt-3 text-[10px] sm:text-sm font-bold text-center" [ngClass]="isStepCompleted(order()?.status, 3) ? 'text-gray-900' : 'text-gray-400'">On-Delivery</div>
+                <div class="text-[10px] sm:text-xs text-gray-500 mt-1 hidden sm:block text-center w-20">Near your area</div>
+              </div>
+
+              <div class="flex flex-col items-center">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border-4 transition-colors duration-500 bg-white"
+                     [ngClass]="isStepCompleted(order()?.status, 4) ? 'border-emerald-500 text-emerald-500 shadow-md' : 'border-gray-200 text-gray-300'">
+                  <ng-icon name="faSolidCheck" class="text-lg"></ng-icon>
+                </div>
+                <div class="mt-3 text-[10px] sm:text-sm font-bold text-center" [ngClass]="isStepCompleted(order()?.status, 4) ? 'text-emerald-600' : 'text-gray-400'">Delivered</div>
+                <div class="text-[10px] sm:text-xs text-gray-500 mt-1 hidden sm:block text-center w-20">Package Arrived</div>
+              </div>
+
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="lg:grid lg:grid-cols-12 lg:gap-x-8">
+        
+        <div class="lg:col-span-8">
+          <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-8 lg:mb-0">
+            <div class="px-6 py-5 border-b border-gray-200 bg-slate-50">
+              <h3 class="text-lg font-bold text-gray-900">Order Items</h3>
+            </div>
+            
+            <ul class="divide-y divide-gray-100">
+              @for (item of order()?.items; track item.product._id) {
+                <li class="p-6 flex items-center">
+                  <img [src]="item.product.images?.[0] || item.product.image || 'https://placehold.co/100x100/png?text=No+Image'" 
+                       [alt]="item.product.productname" 
+                       class="h-20 w-20 rounded-xl object-cover border border-gray-200 shadow-sm shrink-0">
+                  
+                  <div class="ml-6 flex-1">
+                    <div class="font-bold text-gray-900 text-lg">{{ item.product.productname }}</div>
+                    <div class="text-sm font-medium text-gray-500 mt-1">₱{{ item.price | number:'1.2-2' }}</div>
+                  </div>
+                  
+                  <div class="ml-4 text-right">
+                    <div class="text-sm font-bold text-gray-700 bg-gray-50 px-3 py-1 rounded-lg border border-gray-100 inline-block mb-1">
+                      Qty: {{ item.quantity }}
+                    </div>
+                    <div class="text-base font-black text-orange-600 block">
+                      ₱{{ (item.price * item.quantity) | number:'1.2-2' }}
+                    </div>
+                  </div>
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+
+        <div class="lg:col-span-4 space-y-8">
+          
+          <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-5 border-b border-gray-200 bg-slate-50">
+              <h3 class="text-lg font-bold text-gray-900">Details</h3>
+            </div>
+            
+            <div class="p-6 space-y-6">
+              <div>
+                <dt class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Shipping Address</dt>
+                <dd class="text-sm font-medium text-gray-900 leading-relaxed">{{ order()?.shippingAddress }}</dd>
+              </div>
+              
+              <div>
+                <dt class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Payment Method</dt>
+                <dd class="text-sm font-medium text-gray-900">{{ order()?.paymentMethod }}</dd>
+              </div>
+
+              <div>
+                <dt class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Payment Status</dt>
+                <dd class="text-sm font-bold"
+                    [ngClass]="order()?.paymentStatus === 'Paid' ? 'text-emerald-600' : 'text-amber-600'">
+                  {{ order()?.paymentStatus }}
+                </dd>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-gray-50 rounded-2xl border border-gray-200 shadow-sm overflow-hidden p-6">
+            <h2 class="text-lg font-bold text-gray-900 mb-6">Summary</h2>
+
+            <dl class="space-y-4">
+              <div class="flex items-center justify-between">
+                <dt class="text-sm text-gray-600">Subtotal</dt>
+                <dd class="text-sm font-medium text-gray-900">₱{{ order()?.totalAmount | number:'1.2-2' }}</dd>
+              </div>
+              <div class="flex items-center justify-between">
+                <dt class="text-sm text-gray-600">Shipping</dt>
+                <dd class="text-sm font-medium text-emerald-600">Free</dd>
+              </div>
+              <div class="flex items-center justify-between border-t border-gray-200 pt-4">
+                <dt class="text-base font-bold text-gray-900">Total</dt>
+                <dd class="text-2xl font-black text-orange-600">₱{{ order()?.totalAmount | number:'1.2-2' }}</dd>
+              </div>
+            </dl>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  }
+
+</div>

@@ -26,6 +26,11 @@ export class OrderService {
   getUserOrderHistory(): Observable<IOrderListResponse> {
     return this.http.get<IOrderListResponse>(`${this.apiUrl}/history`);
   }
+ 
+  // 👤 FETCH SINGLE USER ORDER BY ID
+  getUserOrderById(orderId: string) {
+    return this.http.get<any>(`${this.apiUrl}/${orderId}`);
+  }
 
   // ==========================================
   // 👑 ADMIN FACING ENDPOINTS

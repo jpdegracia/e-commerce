@@ -144,6 +144,38 @@ class OrderService {
         return orders;
     }
 
+    // 👤 User Facing: fetching order history by ID
+    public async getOrderByIdForUser(orderId: string, userId: string) {
+        // 1. Fetch and deeply populate the order
+        const order = await OrderModel.findById(orderId)
+            .populate('user', 'fullname email')
+            .populate({
+                path: 'items.product',
+                select: 'productname images image price stock'
+            });
+
+        // 2. Does it exist?
+        if (!order) {
+            // We throw a custom error object that our controller can catch
+            throw { status: 404, message: "Order not found." };
+        }
+
+        // 3. Security: Does the user own this order?
+        if (order.user._id.toString() !== userId.toString()) {
+            throw { status: 403, message: "Forbidden. You do not have permission to view this order." };
+        }
+
+        // 4. Return the clean data
+        return order;
+    }
+
+    // 🚀 ADDED FOR ADMIN: Fetch a single detailed transaction profile (to inject payment later)
+    public async getOrderById(id: string) {
+        return await OrderModel.findById(id)
+            .populate("user", "fullname email")
+            .populate("items.product", "productname image price");
+    }
+
     // 👑 Admin Facing: Fetch full store ledger records
     public async getAllStoreOrders() {
         const allOrders = await OrderModel.find({})
@@ -152,13 +184,6 @@ class OrderService {
             .populate("items.product", "productname image"); 
             
         return allOrders;
-    }
-
-    // 🚀 ADDED FOR ADMIN: Fetch a single detailed transaction profile
-    public async getOrderById(id: string) {
-        return await OrderModel.findById(id)
-            .populate("user", "fullname email")
-            .populate("items.product", "productname image price");
     }
 
     // 🚀 ADDED FOR ADMIN: Transition fulfillment or logistics states (e.g., Shipping items out)
@@ -176,6 +201,8 @@ class OrderService {
             { new: true, runValidators: true }
         ).populate("user", "fullname email").populate("items.product", "productname image");
     }
+
+    
 
 }
 

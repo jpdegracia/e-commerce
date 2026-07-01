@@ -31,7 +31,7 @@ export class OrderHistoryComponent implements OnInit {
 
     this.orderService.getUserOrderHistory().subscribe({
       next: (response) => {
-        console.log("ORDER HISTORY DATA:", response.details);
+        
         this.orders.set(response.details);
         this.isLoading.set(false);
       },

@@ -38,9 +38,9 @@
       @for (order of orders(); track order._id) {
         <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
           
-          <div class="bg-slate-50 border-b border-gray-200 px-6 py-5 sm:flex sm:items-center sm:justify-between">
+          <div class="bg-slate-50 border-b border-gray-200 px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             
-            <div class="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4 sm:gap-x-8 flex-1">
+            <div class="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 sm:gap-x-8 flex-1">
               <div>
                 <dt class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Order Placed</dt>
                 <dd class="text-sm font-semibold text-gray-900">{{ order.createdAt | date:'longDate' }}</dd>
@@ -49,11 +49,19 @@
                 <dt class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Total</dt>
                 <dd class="text-sm font-black text-gray-900">₱{{ order.totalAmount | number:'1.2-2' }}</dd>
               </div>
-              <div class="col-span-2 sm:col-span-2 sm:text-right">
+              <div>
                 <dt class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Order ID</dt>
-                <dd class="text-sm font-mono text-gray-600">#{{ order._id | uppercase }}</dd>
+                <dd class="text-sm font-mono text-gray-600 line-clamp-1">#{{ order._id | uppercase }}</dd>
               </div>
             </div>
+
+            <div class="sm:ml-6 shrink-0">
+              <a [routerLink]="['/orders', order._id]" 
+                 class="btn-view-detail">
+                View Details
+              </a>
+            </div>
+
           </div>
 
           <div class="px-6 py-6 sm:flex sm:items-start sm:justify-between">

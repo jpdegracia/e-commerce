@@ -35,6 +35,7 @@ import { CreateCategoryComponent } from './admin/create-category/create-category
 import { UpdateCategoryComponent } from './admin/update-category/update-category';
 import { ViewCategoryComponent } from './admin/view-category/view-category';
 import { OrderHistoryComponent } from './components/order-history/order-history';
+import { ViewOrderComponent } from './components/view-order/view-order';
 
 
 export const routes: Routes = [
@@ -50,6 +51,7 @@ export const routes: Routes = [
 
 
   {
+    // 🔐 for admin only
     path: 'admin',
     component: AdminLayoutComponent,
     children: [
@@ -97,10 +99,13 @@ export const routes: Routes = [
   { path: 'product/:id', component: ProductComponent},
   { path: 'products/category/:id', component: CategoryComponent},
 
-  //Carts and Orders
+  //Carts
   { path: 'cart', component: CartComponent },
   { path: 'checkout', component: CheckoutComponent },
+
+  //Orders
   { path: 'my-order-history', component: OrderHistoryComponent },
+  { path: 'orders/:id', component: ViewOrderComponent },
 
 
 

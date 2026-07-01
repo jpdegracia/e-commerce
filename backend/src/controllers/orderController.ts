@@ -49,6 +49,21 @@ export const getOrderHistory = async (req: Request, res: Response) => {
     }
 };
 
+// 👤 USER CONTROLLER
+export const getUserOrderById = async (req: Request, res: Response) => {
+    try {
+        // 🚀 Force TypeScript to treat these as singular strings
+        const orderId = req.params.id as string; 
+        const userId = ((req as any).user?._id || (req as any).user?.id) as string;
+
+        const order = await orderService.getOrderByIdForUser(orderId, userId);
+        return res.status(200).json({ message: "Order found.", details: order });
+    } catch (error: any) {
+        const status = error.status || 500;
+        return res.status(status).json({ message: error.message || "Server Error" });
+    }
+};
+
 // ADMIN: FETCH ALL STORE ORDERS
 export const getAllOrders = async (req: Request, res: Response) => {
     try {
@@ -59,6 +74,10 @@ export const getAllOrders = async (req: Request, res: Response) => {
             details: orders
         });
     } catch (error) {
+        console.log("\n==========================================");
+        console.log("🚨 ADMIN GET ALL ORDERS CRASHED!");
+        console.error(error);
+        console.log("==========================================\n");
         if (error instanceof Error) {
             res.status(400).json({ message: "Failed to retrieve store orders", error: error.message });
         } else {
