@@ -5,6 +5,7 @@ import { ToastService } from '../../services/toast';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { faSolidCartShopping } from '@ng-icons/font-awesome/solid';
 import { CartService } from '../../services/cart';
+import { CartItem } from '../../interface/cart-items';
 
 @Component({
   selector: 'app-product', // 🚀 Keeps your original selector
@@ -98,19 +99,23 @@ export class ProductComponent implements OnInit {
   addToCart() {
     if (!this.product || this.quantity < 1 || this.product.stock < 1) return;
 
-    // Package the item using our new CartItem interface shape
-    const itemToAdd = {
-      productId: this.product._id,
-      productname: this.product.productname,
+    // 🚀 Added strict type ': CartItem' here!
+    const itemToAdd: CartItem = {
+      // 1. Bundle all the product details inside this nested object
+      product: {
+        _id: this.product._id, 
+        productname: this.product.productname,
+        images: this.product.images || (this.product.image ? [this.product.image] : []),
+        price: this.product.price,
+        stock: this.product.stock
+      },
+      // 2. Keep the cart-specific data at the top level
       price: this.product.price,
-      quantity: this.quantity,
-      image: this.selectedImage || (this.product.images && this.product.images[0]) || 'assets/placeholder.png',
-      stock: this.product.stock
+      quantity: this.quantity // 🚀 FIXED: Changed from 'this.selectedQuantity' to 'this.quantity'
     };
 
-    // Send it to the Cart Service
     this.cartService.addToCart(itemToAdd);
-
+    
     // Show a success message!
     this.toast.show(`Added ${this.quantity} ${this.product.productname}(s) to your cart!`, 'success');
   }

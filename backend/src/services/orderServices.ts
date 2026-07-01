@@ -144,7 +144,7 @@ class OrderService {
     public async getAllStoreOrders() {
         const allOrders = await OrderModel.find({})
             .sort({ createdAt: -1 })
-            .populate("user", "name email") // Fetch who bought it
+            .populate("user", "fullname email") // Fetch who bought it
             .populate("items.product", "productname image"); 
             
         return allOrders;

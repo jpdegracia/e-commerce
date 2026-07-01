@@ -7,7 +7,9 @@ import { getAdminOrderById, getAllOrders, getOrderHistory, modifyOrderStatus, pl
 const router = Router()
 
 router.post("/checkout", verifyToken, checkPermission("order_create"), placeOrder)
-router.get("/history", verifyToken, checkPermission("order_all"), getOrderHistory)
+router.get("/history", verifyToken, checkPermission("order_read"), getOrderHistory)
+
+// Admin: to see all incoming orders and list of orders
 router.get("/all", verifyToken, checkPermission("order_all"), getAllOrders)
 
 // 🚀 ADDED: Fetch detailed sub-metrics for a single order profile

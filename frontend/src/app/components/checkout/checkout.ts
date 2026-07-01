@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core'; // 🚀 Imported OnInit
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule, DecimalPipe } from '@angular/common';
@@ -12,55 +12,71 @@ import { ToastService } from '../../services/toast';
   imports: [ReactiveFormsModule, CommonModule, DecimalPipe],
   templateUrl: './checkout.html'
 })
-export class CheckoutComponent {
+export class CheckoutComponent implements OnInit { // 🚀 Implemented OnInit
   public cartService = inject(CartService);
   private orderService = inject(OrderService);
   private toast = inject(ToastService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
-  // 🚀 Set up the Shipping Form with Validation
+  // Set up the Shipping Form with Validation
   checkoutForm: FormGroup = this.fb.group({
     fullName: ['', [Validators.required, Validators.minLength(3)]],
     address: ['', [Validators.required]],
     city: ['', [Validators.required]],
     zipCode: ['', [Validators.required]],
-    phone: ['', [Validators.required]]
+    phone: ['', [Validators.required]],
+    paymentMethod: ['Cash on Delivery / C.O.D.', [Validators.required]] // 🚀 ADD THIS LINE
   });
 
   isSubmitting = false;
 
+  // 🚀 ADDED: Fire this immediately when the page loads!
+  ngOnInit() {
+    this.cartService.loadCart();
+  }
+
   placeOrder() {
     if (this.checkoutForm.invalid) {
       this.checkoutForm.markAllAsTouched();
-      this.toast.show("Please fill out all required shipping details.");
+      // 🚀 FIXED: Added 'error' as the second argument
+      this.toast.show("Please fill out all required shipping details.", 'error');
       return;
     }
 
     this.isSubmitting = true;
 
-    // 🚀 Send the form data to your Express backend!
-    // Note: A secure backend usually pulls the cart items and prices directly from 
-    // the DB using the user's token, so we only need to send the shipping info!
+    // 1. Extract the form values
+    const formVals = this.checkoutForm.value;
+
+    // 2. Combine the address parts
+    const fullShippingAddress = `${formVals.fullName} - ${formVals.phone} | ${formVals.address}, ${formVals.city}, Zip: ${formVals.zipCode}`;
+
+    // 3. Pass the payload
     const orderPayload = {
-      shippingAddress: this.checkoutForm.value
+      shippingAddress: fullShippingAddress,
+      paymentMethod: formVals.paymentMethod 
     };
 
-    this.orderService.createOrder(orderPayload).subscribe({
+    this.orderService.placeOrder(orderPayload).subscribe({
       next: (response) => {
-        this.toast.show("Order placed successfully!");
+        // 🚀 FIXED: Explicitly set to 'success'
+        this.toast.show("Order placed successfully!", 'success');
         
-        // 🚀 Tell the cart service to empty the cart UI (the backend should empty the DB cart)
+        // Tell the cart service to empty the cart UI
         this.cartService.loadCart(); 
         
         this.isSubmitting = false;
-        // Redirect to a success page or order history
         this.router.navigate(['/order-success']); 
       },
       error: (err) => {
         this.isSubmitting = false;
-        const errorMsg = err.error?.message || "Failed to place order.";
-        this.toast.show(`Checkout Failed: ${errorMsg}`);
+        
+        // 🚀 FIXED: Now checks err.error.error first to get the detailed backend message
+        const errorMsg = err.error?.error || err.error?.message || "Failed to place order.";
+        
+        // 🚀 FIXED: Added 'error' as the second argument so the box is red!
+        this.toast.show(`Checkout Failed: ${errorMsg}`, 'error');
       }
     });
   }

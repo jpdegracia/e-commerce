@@ -1,7 +1,7 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CartItem } from '../interface/cart-items';
-import { ToastService } from './toast'; // Ensure this path matches your project structure
+import { ToastService } from './toast';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -47,13 +47,15 @@ export class CartService {
   // 🛒 ADD ITEM
   addToCart(item: CartItem) {
     if (this.isLoggedIn()) {
-      this.http.post<CartItem>(this.apiUrl, { productId: item.productId, quantity: item.quantity || 1 }).subscribe({
+      // 🚀 Updated to item.product._id
+      this.http.post<CartItem>(this.apiUrl, { productId: item.product._id, quantity: item.quantity || 1 }).subscribe({
         next: () => this.loadFromDB(),
         error: (err) => console.error('Failed to add to DB', err)
       });
     } else {
       const currentItems = [...this.cartItems()];
-      const existing = currentItems.find(i => i.productId === item.productId);
+      // 🚀 Updated to item.product._id
+      const existing = currentItems.find(i => i.product._id === item.product._id);
       
       if (existing) {
         existing.quantity += (item.quantity || 1);
@@ -72,7 +74,8 @@ export class CartService {
         error: (err) => console.error('Failed to remove from DB', err)
       });
     } else {
-      const updatedItems = this.cartItems().filter(item => item.productId !== productId);
+      // 🚀 Updated to item.product._id
+      const updatedItems = this.cartItems().filter(item => item.product._id !== productId);
       this.saveToLocal(updatedItems);
     }
   }
@@ -86,7 +89,8 @@ export class CartService {
       });
     } else {
       const currentItems = [...this.cartItems()];
-      const item = currentItems.find(i => i.productId === productId);
+      // 🚀 Updated to item.product._id
+      const item = currentItems.find(i => i.product._id === productId);
       if (item) {
         item.quantity = quantity;
         this.saveToLocal(currentItems);
@@ -100,21 +104,25 @@ export class CartService {
   private loadFromDB() {
     this.http.get<any>(this.apiUrl).subscribe({
       next: (response) => {
-        console.log("BACKEND SENT THIS CART DATA:", response);
         if (!response.details || !response.details.items) {
           this.cartItems.set([]);
           return;
         }
 
+        // 🚀 Updated mapper to construct the exact nested structure your UI now expects
         const mappedItems: CartItem[] = response.details.items.map((cartItem: any) => {
           const prod = cartItem.product; 
           return {
-            productId: prod._id || prod.id, 
-            productname: prod.name || prod.productname, 
-            price: prod.price,
-            image: prod.image,
-            stock: prod.stock,
-            quantity: cartItem.quantity
+            product: {
+              _id: prod._id || prod.id,
+              productname: prod.name || prod.productname,
+              images: prod.images || (prod.image ? [prod.image] : []), // Safely handle both array and single string
+              price: prod.price,
+              stock: prod.stock
+            },
+            price: prod.price, // Cart snapshot price
+            quantity: cartItem.quantity,
+            _id: cartItem._id
           };
         });
 
@@ -132,13 +140,11 @@ export class CartService {
     if (localData) {
       const parsedData = JSON.parse(localData);
       
-      // ⏳ Check if the current time has passed the expiration time
       if (Date.now() > parsedData.expiresAt) {
         console.warn("Guest cart expired! Clearing local storage.");
         localStorage.removeItem('guestCart');
         this.cartItems.set([]);
       } else {
-        // Still valid! Load the items into the UI
         this.cartItems.set(parsedData.items);
       }
     } else {
@@ -147,13 +153,11 @@ export class CartService {
   }
 
   private saveToLocal(items: CartItem[]) {
-    this.cartItems.set(items); // Update UI immediately
+    this.cartItems.set(items);
     
-    // ⏳ Calculate expiration time (Current time + X hours in milliseconds)
     const expirationMs = this.GUEST_CART_EXPIRATION_HOURS * 60 * 60 * 1000;
     const expiresAt = Date.now() + expirationMs;
 
-    // Wrap the items and the timestamp together in a single object
     const payload = {
       items: items,
       expiresAt: expiresAt
@@ -167,15 +171,12 @@ export class CartService {
   // ==========================================
   syncGuestCartToDb() {
     const localData = localStorage.getItem('guestCart');
-    if (!localData) return; // Nothing to sync
+    if (!localData) return;
 
     const parsedData = JSON.parse(localData);
 
-    // ⏳ If they log in, but their guest cart is expired, don't sync it!
     if (Date.now() > parsedData.expiresAt) {
       localStorage.removeItem('guestCart');
-      
-      // Notify them their cart was cleared (adjust method name to match your ToastService)
       if (this.toast.show) {
         this.toast.show("Your guest cart expired and was cleared.");
       }
@@ -184,28 +185,25 @@ export class CartService {
 
     const guestItems: CartItem[] = parsedData.items;
     
-    // Loop through guest items and push to DB
     guestItems.forEach(item => {
-      this.http.post<CartItem>(this.apiUrl, { productId: item.productId, quantity: item.quantity }).subscribe({
+      // 🚀 Updated to item.product._id
+      this.http.post<CartItem>(this.apiUrl, { productId: item.product._id, quantity: item.quantity }).subscribe({
         next: () => {
-          this.loadFromDB(); // Reload the official DB cart for each successful sync
+          this.loadFromDB(); 
         },
         error: (err) => {
-          // 🚀 Grab the exact error message from your Express backend
           const errorMsg = err.error?.message || err.error?.error || "Failed to add an item to your cart.";
           
-          // Show the toast to the user (adjust method name to match your ToastService)
+          // 🚀 Updated to item.product.productname
           if (this.toast.show) {
-            this.toast.show(`Oops! ${item.productname}: ${errorMsg}`);
+            this.toast.show(`Oops! ${item.product.productname}: ${errorMsg}`);
           } else {
-            console.error(`Oops! ${item.productname}: ${errorMsg}`);
+            console.error(`Oops! ${item.product.productname}: ${errorMsg}`);
           }
         }
       });
     });
 
-    // Clean up local storage so we don't sync again later
-    // We clear it here regardless of loop success/failure so they aren't stuck looping a dead cart
     localStorage.removeItem('guestCart'); 
   }
 }

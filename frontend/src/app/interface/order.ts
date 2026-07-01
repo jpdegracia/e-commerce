@@ -33,3 +33,17 @@ export interface IOrderResponse {
   createdAt: string; // Mongoose timestamps translate to strings over JSON HTTP
   updatedAt: string;
 }
+
+// ==========================================
+// 📦 API RESPONSE WRAPPERS
+// ==========================================
+
+export interface IOrderListResponse {
+  message: string;
+  details: IOrderResponse[];
+}
+
+export interface ISingleOrderResponse {
+  message: string;
+  details: IOrderResponse;
+}
