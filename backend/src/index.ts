@@ -25,10 +25,27 @@ connectDB();
 
 // 3. MIDDLEWARE
 // This is critical! It allows Express to read incoming JSON data in req.body
+const allowedOrigins = [
+    'http://localhost:4200',                         // For local development
+    'https://e-commerce-eta-lilac.vercel.app'        // For your live Vercel frontend
+];
+
 app.use(cors({
-    origin: 'http://localhost:4200',
-    credentials: true
-}))
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like Postman, mobile apps, or server-to-server)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Blocked by CORS policy'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }))
 
