@@ -6,6 +6,7 @@ import { IOrderResponse } from '../../interface/order';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 // 🚀 1. Import the new icons for the tracker!
 import { faSolidArrowLeft, faSolidBoxOpen, faSolidTruckFast, faSolidClipboardList, faSolidBox, faSolidTruck, faSolidLocationDot, faSolidCheck, faSolidCircleXmark } from '@ng-icons/font-awesome/solid';
+import { PaymentService } from '../../services/payment';
 
 @Component({
   selector: 'app-view-order',
@@ -18,16 +19,22 @@ import { faSolidArrowLeft, faSolidBoxOpen, faSolidTruckFast, faSolidClipboardLis
 export class ViewOrderComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private orderService = inject(OrderService);
+  private paymentService = inject(PaymentService);
 
   order = signal<IOrderResponse | null>(null);
   isLoading = signal<boolean>(true);
   errorMessage = signal<string | null>(null);
+
+  // 💸 New Payment Signals
+  isPaying = signal<boolean>(false);
+  paymentAlert = signal<{ type: 'success' | 'error' | 'info', message: string } | null>(null);
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       const orderId = params.get('id');
       if (orderId) {
         this.fetchOrder(orderId);
+        this.checkPaymentStatusFromUrl();
       } else {
         this.errorMessage.set("Invalid Order ID.");
         this.isLoading.set(false);
@@ -49,6 +56,47 @@ export class ViewOrderComponent implements OnInit {
         const errorMsg = err.error?.message || "Failed to load order details.";
         this.errorMessage.set(errorMsg);
         this.isLoading.set(false);
+      }
+    });
+  }
+
+  checkPaymentStatusFromUrl() {
+    this.route.queryParams.subscribe(params => {
+      const paymentResult = params['payment'];
+      
+      if (paymentResult === 'success') {
+        this.paymentAlert.set({
+          type: 'success',
+          message: 'Thank you! Your payment via PayMongo has been initialized. It might take a moment to update your status.'
+        });
+      } else if (paymentResult === 'cancelled') {
+        this.paymentAlert.set({
+          type: 'info',
+          message: 'Payment checkout was cancelled. You can try paying again whenever you are ready.'
+        });
+      }
+    });
+  }
+
+  initiatePayment() {
+    const currentOrder = this.order();
+    if (!currentOrder) return;
+
+    this.isPaying.set(true);
+    this.paymentAlert.set(null); // Clear old alerts
+
+    this.paymentService.createCheckoutSession(currentOrder._id).subscribe({
+      next: (response) => {
+        // Redirect browser directly to PayMongo Secure Sandbox
+        window.location.href = response.checkoutUrl; 
+      },
+      error: (err) => {
+        console.error("Payment initiation failed:", err);
+        this.paymentAlert.set({
+          type: 'error',
+          message: err.error?.message || "Failed to connect to the payment gateway. Please try again."
+        });
+        this.isPaying.set(false);
       }
     });
   }

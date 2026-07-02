@@ -1,10 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core'; // 🚀 Imported OnInit
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { CartService } from '../../services/cart';
 import { OrderService } from '../../services/order';
 import { ToastService } from '../../services/toast'; 
+import { PaymentService } from '../../services/payment'; 
 
 @Component({
   selector: 'app-checkout',
@@ -12,9 +13,10 @@ import { ToastService } from '../../services/toast';
   imports: [ReactiveFormsModule, CommonModule, DecimalPipe],
   templateUrl: './checkout.html'
 })
-export class CheckoutComponent implements OnInit { // 🚀 Implemented OnInit
+export class CheckoutComponent implements OnInit { 
   public cartService = inject(CartService);
   private orderService = inject(OrderService);
+  private paymentService = inject(PaymentService); // 🚀 2. Inject it!
   private toast = inject(ToastService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
@@ -26,12 +28,11 @@ export class CheckoutComponent implements OnInit { // 🚀 Implemented OnInit
     city: ['', [Validators.required]],
     zipCode: ['', [Validators.required]],
     phone: ['', [Validators.required]],
-    paymentMethod: ['Cash on Delivery / C.O.D.', [Validators.required]] // 🚀 ADD THIS LINE
+    paymentMethod: ['Cash on Delivery / C.O.D.', [Validators.required]] 
   });
 
   isSubmitting = false;
 
-  // 🚀 ADDED: Fire this immediately when the page loads!
   ngOnInit() {
     this.cartService.loadCart();
   }
@@ -39,7 +40,6 @@ export class CheckoutComponent implements OnInit { // 🚀 Implemented OnInit
   placeOrder() {
     if (this.checkoutForm.invalid) {
       this.checkoutForm.markAllAsTouched();
-      // 🚀 FIXED: Added 'error' as the second argument
       this.toast.show("Please fill out all required shipping details.", 'error');
       return;
     }
@@ -60,22 +60,45 @@ export class CheckoutComponent implements OnInit { // 🚀 Implemented OnInit
 
     this.orderService.placeOrder(orderPayload).subscribe({
       next: (response) => {
-        // 🚀 FIXED: Explicitly set to 'success'
-        this.toast.show("Order placed successfully!", 'success');
-        
-        // Tell the cart service to empty the cart UI
+        // Empty the cart UI
         this.cartService.loadCart(); 
         
-        this.isSubmitting = false;
-        this.router.navigate(['/order-success']); 
+        // 🚀 4. Grab the ID of the newly created order
+        // (Make sure this matches exactly how your backend sends it!)
+        const newOrderId = response.details._id;
+
+        // 🚀 5. THE MAGIC UX BRANCH
+        if (formVals.paymentMethod !== 'Cash on Delivery / C.O.D.') {
+          
+          this.toast.show("Order saved! Redirecting to secure payment...", 'info');
+          
+          // Instantly ask PayMongo for a link using the new Order ID
+          this.paymentService.createCheckoutSession(newOrderId).subscribe({
+            next: (payRes) => {
+              window.location.href = payRes.checkoutUrl; // Auto-redirect!
+            },
+            error: (payErr) => {
+              console.error("Auto-redirect failed:", payErr);
+              this.isSubmitting = false;
+              this.toast.show("Payment gateway error. You can pay from your order history.", 'error');
+              // Fallback: Send them to the view order page to click the button manually
+              this.router.navigate(['/orders', newOrderId]);
+            }
+          });
+
+        } else {
+          // 🚀 6. It is C.O.D. - normal flow!
+          this.toast.show("Order placed successfully!", 'success');
+          this.isSubmitting = false;
+          
+          // I changed this from '/order-success' to directly view the order.
+          // This way, they instantly see their new beautiful Order Tracker!
+          this.router.navigate(['/orders', newOrderId]); 
+        }
       },
       error: (err) => {
         this.isSubmitting = false;
-        
-        // 🚀 FIXED: Now checks err.error.error first to get the detailed backend message
         const errorMsg = err.error?.error || err.error?.message || "Failed to place order.";
-        
-        // 🚀 FIXED: Added 'error' as the second argument so the box is red!
         this.toast.show(`Checkout Failed: ${errorMsg}`, 'error');
       }
     });

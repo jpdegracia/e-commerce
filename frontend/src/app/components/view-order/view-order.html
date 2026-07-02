@@ -5,6 +5,17 @@
     Back to Order History
   </a>
 
+  @if (paymentAlert()) {
+    <div class="mb-8 p-4 rounded-xl text-sm font-medium shadow-sm transition-all animate-fadeIn"
+         [ngClass]="{
+           'bg-emerald-50 text-emerald-800 border border-emerald-200': paymentAlert()?.type === 'success',
+           'bg-amber-50 text-amber-800 border border-amber-200': paymentAlert()?.type === 'info',
+           'bg-rose-50 text-rose-800 border border-rose-200': paymentAlert()?.type === 'error'
+         }">
+      {{ paymentAlert()?.message }}
+    </div>
+  }
+
   @if (isLoading()) {
     <div class="flex justify-center items-center py-32 bg-white rounded-3xl border border-gray-100 shadow-sm">
       <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-600"></div>
@@ -196,6 +207,22 @@
                 <dd class="text-2xl font-black text-orange-600">₱{{ order()?.totalAmount | number:'1.2-2' }}</dd>
               </div>
             </dl>
+
+            @if (order()?.paymentStatus === 'Unpaid' && order()?.paymentMethod !== 'Cash on Delivery / C.O.D.') {
+              <div class="mt-6 border-t border-gray-200 pt-6">
+                <button (click)="initiatePayment()" 
+                        [disabled]="isPaying()"
+                        class="w-full flex justify-center items-center px-6 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                  @if (isPaying()) {
+                    <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    Connecting...
+                  } @else {
+                    Pay ₱{{ order()?.totalAmount | number:'1.2-2' }} Now
+                  }
+                </button>
+              </div>
+            }
+
           </div>
 
         </div>

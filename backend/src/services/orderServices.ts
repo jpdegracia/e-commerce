@@ -100,8 +100,9 @@ class OrderService {
 
         if (paymentMethod !== "Cash on Delivery / C.O.D.") {
             // If they picked GCash, PayMaya, Card, or PayPal, we fake a successful transaction!
-            finalPaymentStatus = "Paid";
-            initialOrderStatus = "Processing"; // Automatically move to processing since it's paid
+            finalPaymentStatus = "Unpaid";
+            initialOrderStatus = "Pending";
+            generatedTransactionId = undefined;
             
             // Generate a random, unique fake ID (e.g., "mock_txn_1718234567_abc12")
             const randomString = Math.random().toString(36).substring(2, 8);
